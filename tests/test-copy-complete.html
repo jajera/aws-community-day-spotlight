@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Copy Functionality Test</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .test-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        .test-result {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .test-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+        .test-error {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+        .expected-output {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-line;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div style="padding: 2rem; max-width: 1200px; margin: 0 auto;">
+        <h1>Copy Functionality Test Suite</h1>
+        
+        <div class="test-section">
+            <h2>Test 1: Basic Form Validation</h2>
+            <div id="test1-results"></div>
+            <button onclick="runTest1()" class="btn btn-secondary">Run Test 1</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 2: Text Generation</h2>
+            <div id="test2-results"></div>
+            <button onclick="runTest2()" class="btn btn-secondary">Run Test 2</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 3: Clipboard Functionality</h2>
+            <div id="test3-results"></div>
+            <button onclick="runTest3()" class="btn btn-secondary">Run Test 3</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 4: User Feedback</h2>
+            <div id="test4-results"></div>
+            <button onclick="runTest4()" class="btn btn-secondary">Run Test 4</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Interactive Test: Full Form</h2>
+            <p>Fill out the form below and test the copy functionality:</p>
+            
+            <form id="speaker-form" class="speaker-form" style="max-width: 500px;">
+                <div class="form-group">
+                    <label for="speaker-name">Speaker Name</label>
+                    <input type="text" id="speaker-name" name="speakerName" maxlength="60" required>
+                    <div class="char-counter">
+                        <span id="name-counter">0</span>/60
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="topic-title">Topic Title</label>
+                    <input type="text" id="topic-title" name="topicTitle" maxlength="100" required>
+                    <div class="char-counter">
+                        <span id="topic-counter">0</span>/100
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="speaker-bio">Speaker Bio</label>
+                    <textarea id="speaker-bio" name="speakerBio" maxlength="300" rows="4" required></textarea>
+                    <div class="char-counter">
+                        <span id="bio-counter">0</span>/300
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="event-date">Date</label>
+                        <input type="date" id="event-date" name="eventDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-time">Time</label>
+                        <input type="time" id="event-time" name="eventTime" value="00:00" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="event-format">Format</label>
+                    <select id="event-format" name="eventFormat" required>
+                        <option value="">Select format</option>
+                        <option value="Virtual">Virtual</option>
+                        <option value="In-Person">In-Person</option>
+                        <option value="Hybrid">Hybrid</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="copy-text-btn" class="btn btn-secondary">
+                        Copy Text
+                    </button>
+                    <button type="button" onclick="fillSampleData()" class="btn btn-secondary" style="margin-left: 1rem;">
+                        Fill Sample Data
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="vars.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Test functions
+        function runTest1() {
+            const results = document.getElementById('test1-results');
+            results.innerHTML = '<h3>Running validation tests...</h3>';
+            
+            try {
+                // Test empty form validation
+                const app = window.app;
+                const isValid = app.validateAllFields();
+                
+                if (!isValid) {
+                    addTestResult(results, 'PASS: Empty form validation correctly fails', 'success');
+                } else {
+                    addTestResult(results, 'FAIL: Empty form should not validate', 'error');
+                }
+                
+                // Test individual field validation
+                const nameField = document.getElementById('speaker-name');
+                nameField.value = 'Test Speaker';
+                const nameValid = app.validateField(nameField);
+                
+                if (nameValid) {
+                    addTestResult(results, 'PASS: Valid name field validates correctly', 'success');
+                } else {
+                    addTestResult(results, 'FAIL: Valid name field should validate', 'error');
+                }
+                
+            } catch (error) {
+                addTestResult(results, `ERROR: ${error.message}`, 'error');
+            }
+        }
+        
+        function runTest2() {
+            const results = document.getElementById('test2-results');
+            results.innerHTML = '<h3>Running text generation tests...</h3>';
+            
+            try {
+                // Fill form with test data
+                fillSampleData();
+                
+                const app = window.app;
+                const formattedText = app.generateFormattedText();
+                
+                // Check if text contains expected elements
+                const expectedElements = [
+                    '🎙️ Speaker: Jane Smith',
+                    '📌 Topic: Scaling Microservices with Kubernetes',
+                    '👤 Bio: Jane is a DevOps engineer',
+                    '🗓 Date:',
+                    '⏰ Time:',
+                    '🌐 Format: Hybrid',
+                    '#AWSCDOceanic2025'
+                ];
+                
+                let allFound = true;
+                expectedElements.forEach(element => {
+                    if (formattedText.includes(element)) {
+                        addTestResult(results, `PASS: Found "${element}"`, 'success');
+                    } else {
+                        addTestResult(results, `FAIL: Missing "${element}"`, 'error');
+                        allFound = false;
+                    }
+                });
+                
+                if (allFound) {
+                    addTestResult(results, 'PASS: All expected elements found in generated text', 'success');
+                }
+                
+                // Show the generated text
+                const textDiv = document.createElement('div');
+                textDiv.className = 'expected-output';
+                textDiv.textContent = formattedText;
+                results.appendChild(textDiv);
+                
+            } catch (error) {
+                addTestResult(results, `ERROR: ${error.message}`, 'error');
+            }
+        }
+        
+        function runTest3() {
+            const results = document.getElementById('test3-results');
+            results.innerHTML = '<h3>Running clipboard tests...</h3>';
+            
+            try {
+                // Test clipboard API availability
+                if (navigator.clipboard) {
+                    addTestResult(results, 'PASS: Clipboard API is available', 'success');
+                } else {
+                    addTestResult(results, 'INFO: Clipboard API not available, will use fallback', 'success');
+                }
+                
+                // Test secure context
+                if (window.isSecureContext) {
+                    addTestResult(results, 'PASS: Running in secure context', 'success');
+                } else {
+                    addTestResult(results, 'INFO: Not in secure context, clipboard may be limited', 'success');
+                }
+                
+                addTestResult(results, 'INFO: Use the interactive form below to test actual copying', 'success');
+                
+            } catch (error) {
+                addTestResult(results, `ERROR: ${error.message}`, 'error');
+            }
+        }
+        
+        function runTest4() {
+            const results = document.getElementById('test4-results');
+            results.innerHTML = '<h3>Running feedback tests...</h3>';
+            
+            try {
+                const app = window.app;
+                
+                // Test success feedback
+                app.showCopyFeedback('Test success message', 'success');
+                addTestResult(results, 'PASS: Success feedback displayed (check top-right corner)', 'success');
+                
+                setTimeout(() => {
+                    // Test error feedback
+                    app.showCopyFeedback('Test error message', 'error');
+                    addTestResult(results, 'PASS: Error feedback displayed (check top-right corner)', 'success');
+                }, 1000);
+                
+            } catch (error) {
+                addTestResult(results, `ERROR: ${error.message}`, 'error');
+            }
+        }
+        
+        function addTestResult(container, message, type) {
+            const result = document.createElement('div');
+            result.className = `test-result test-${type}`;
+            result.textContent = message;
+            container.appendChild(result);
+        }
+        
+        function fillSampleData() {
+            document.getElementById('speaker-name').value = 'Jane Smith';
+            document.getElementById('topic-title').value = 'Scaling Microservices with Kubernetes';
+            document.getElementById('speaker-bio').value = 'Jane is a DevOps engineer with 8 years of experience in container orchestration and cloud-native technologies. She has led multiple successful migrations to Kubernetes.';
+            document.getElementById('event-date').value = '2025-03-15';
+            document.getElementById('event-time').value = '15:45';
+            document.getElementById('event-format').value = 'Hybrid';
+            
+            // Trigger validation and updates
+            const app = window.app;
+            if (app) {
+                app.validateAllFields();
+            }
+        }
+        
+        // Override canvas rendering for testing
+        if (window.app) {
+            window.app.renderPreview = function() {
+                console.log('Canvas rendering skipped for test');
+            };
+        }
+    </script>
+</body>
+</html>

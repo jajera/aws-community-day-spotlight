@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Counter Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .char-counter { color: #666; font-size: 0.9em; }
+        .char-counter.warning { color: #ffc107; }
+        .char-counter.error { color: #dc3545; }
+        input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .test-result { margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Character Counter Fix Test</h1>
+    
+    <div class="form-group">
+        <label for="speaker-name">Speaker Name</label>
+        <input type="text" id="speaker-name" maxlength="60" placeholder="Enter speaker name">
+        <div class="char-counter" id="name-counter">
+            <span>0</span>/60
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="topic-title">Topic Title</label>
+        <input type="text" id="topic-title" maxlength="100" placeholder="Enter topic title">
+        <div class="char-counter" id="topic-counter">
+            <span>0</span>/100
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="speaker-bio">Speaker Bio</label>
+        <textarea id="speaker-bio" rows="4" placeholder="Enter speaker bio"></textarea>
+        <div class="char-counter" id="bio-counter">
+            <span>0</span>/300
+        </div>
+    </div>
+    
+    <div class="test-result">
+        <h3>Test Instructions:</h3>
+        <ol>
+            <li>Type in any of the input fields above</li>
+            <li>Watch the character counters update correctly</li>
+            <li>No error messages should appear</li>
+            <li>Counters should show "current/max" format</li>
+        </ol>
+        
+        <h3>Expected Behavior:</h3>
+        <ul>
+            <li>✅ Character counters update in real-time</li>
+            <li>✅ No JavaScript errors in console</li>
+            <li>✅ Counters show proper format (e.g., "5/60")</li>
+            <li>✅ Warning colors appear at 90% of limit</li>
+            <li>✅ Error colors appear at 100% of limit</li>
+        </ul>
+    </div>
+
+    <script src="vars.js"></script>
+    <script>
+        // Simple test implementation
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, CONFIG available:', !!window.CONFIG);
+            
+            if (window.CONFIG) {
+                console.log('CONFIG.form.limits:', window.CONFIG.form.limits);
+            }
+            
+            // Test character counters
+            const inputs = ['speaker-name', 'topic-title', 'speaker-bio'];
+            
+            inputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                const counter = document.getElementById(inputId.replace('-', '-'));
+                
+                if (input && counter) {
+                    input.addEventListener('input', function() {
+                        const currentLength = this.value.length;
+                        const maxLength = this.maxlength || 300;
+                        
+                        // Update counter
+                        counter.innerHTML = `<span>${currentLength}</span>/${maxLength}`;
+                        
+                        // Update styling
+                        counter.classList.remove('warning', 'error');
+                        if (currentLength >= maxLength) {
+                            counter.classList.add('error');
+                        } else if (currentLength >= maxLength * 0.9) {
+                            counter.classList.add('warning');
+                        }
+                        
+                        console.log(`${inputId}: ${currentLength}/${maxLength}`);
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

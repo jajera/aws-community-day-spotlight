@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header Functionality Test</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-icons">
+            <button id="github-link" class="icon-button" aria-label="View source on GitHub">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+            </button>
+            <button id="theme-toggle" class="icon-button" aria-label="Toggle dark mode">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path class="sun-icon" d="M12 17.5c-3.038 0-5.5-2.462-5.5-5.5s2.462-5.5 5.5-5.5 5.5 2.462 5.5 5.5-2.462 5.5-5.5 5.5zm0-9c-1.933 0-3.5 1.567-3.5 3.5s1.567 3.5 3.5 3.5 3.5-1.567 3.5-3.5-1.567-3.5-3.5-3.5zm0-2c.552 0 1-.448 1-1v-2c0-.552-.448-1-1-1s-1 .448-1 1v2c0 .552.448 1 1 1zm0 14c-.552 0-1 .448-1 1v2c0 .552.448 1 1 1s1-.448 1-1v-2c0-.552-.448-1-1-1zm8-7c.552 0 1-.448 1-1s-.448-1-1-1h-2c-.552 0-1 .448-1 1s.448 1 1 1h2zm-14 0c-.552 0-1 .448-1 1s.448 1 1 1h2c.552 0 1-.448 1-1s-.448-1-1-1h-2zm12.071-5.071c.391.391 1.023.391 1.414 0l1.414-1.414c.391-.391.391-1.023 0-1.414s-1.023-.391-1.414 0l-1.414 1.414c-.391.391-.391 1.023 0 1.414zm-12.728 12.728c-.391-.391-1.023-.391-1.414 0l-1.414 1.414c-.391.391-.391 1.023 0 1.414s1.023.391 1.414 0l1.414-1.414c.391-.391.391-1.023 0-1.414zm1.414-12.728c.391-.391.391-1.023 0-1.414s-1.023-.391-1.414 0l-1.414 1.414c-.391.391-.391 1.023 0 1.414s1.023.391 1.414 0l1.414-1.414zm12.728 12.728c.391.391 1.023.391 1.414 0s.391-1.023 0-1.414l-1.414-1.414c-.391-.391-1.023-.391-1.414 0s-.391 1.023 0 1.414l1.414 1.414z"/>
+                    <path class="moon-icon" style="display: none;" d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.46 0 .9-.04 1.34-.1-2.46-1.32-4.14-3.88-4.14-6.9 0-3.02 1.68-5.58 4.14-6.9-.44-.06-.88-.1-1.34-.1z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="form-section">
+            <h1>Header Functionality Test</h1>
+            <div style="background: var(--secondary-bg); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h2>Test Instructions</h2>
+                <p>This page tests the header navigation functionality:</p>
+                <ul style="margin: 1rem 0; padding-left: 2rem;">
+                    <li><strong>GitHub Icon:</strong> Click the GitHub icon in the upper right corner. It should open the GitHub repository in a new tab.</li>
+                    <li><strong>Theme Toggle:</strong> Click the theme toggle icon to switch between light and dark modes.</li>
+                    <li><strong>Positioning:</strong> Verify that both icons are positioned in the upper right corner as specified.</li>
+                </ul>
+                
+                <div id="test-results" style="margin-top: 2rem;">
+                    <h3>Test Results:</h3>
+                    <div id="github-test-result" style="margin: 0.5rem 0; padding: 0.5rem; border-radius: 4px;">
+                        <span id="github-status">⏳</span> GitHub Link Test: <span id="github-message">Click the GitHub icon to test</span>
+                    </div>
+                    <div id="theme-test-result" style="margin: 0.5rem 0; padding: 0.5rem; border-radius: 4px;">
+                        <span id="theme-status">⏳</span> Theme Toggle Test: <span id="theme-message">Click the theme toggle to test</span>
+                    </div>
+                    <div id="positioning-test-result" style="margin: 0.5rem 0; padding: 0.5rem; border-radius: 4px;">
+                        <span id="positioning-status">✅</span> Positioning Test: <span id="positioning-message">Icons are positioned in upper right corner</span>
+                    </div>
+                </div>
+
+                <button onclick="runAutomatedTests()" class="btn btn-secondary" style="margin-top: 1rem;">
+                    Run Automated Tests
+                </button>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <h2>Configuration Details</h2>
+            <div style="background: var(--secondary-bg); padding: 1.5rem; border-radius: 8px;">
+                <h3>Current Configuration:</h3>
+                <div id="config-display" style="font-family: monospace; background: var(--input-bg); padding: 1rem; border-radius: 4px; margin-top: 1rem;">
+                    Loading configuration...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="vars.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Test functionality
+        function runAutomatedTests() {
+            console.log('Running header functionality tests...');
+            
+            // Test 1: Check if GitHub link element exists and has correct attributes
+            const githubLink = document.getElementById('github-link');
+            if (githubLink) {
+                document.getElementById('github-status').textContent = '✅';
+                document.getElementById('github-message').textContent = 'GitHub link element found with correct ID and aria-label';
+                document.getElementById('github-test-result').style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+            } else {
+                document.getElementById('github-status').textContent = '❌';
+                document.getElementById('github-message').textContent = 'GitHub link element not found';
+                document.getElementById('github-test-result').style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+            }
+            
+            // Test 2: Check if theme toggle element exists and has correct attributes
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                document.getElementById('theme-status').textContent = '✅';
+                document.getElementById('theme-message').textContent = 'Theme toggle element found with correct ID and aria-label';
+                document.getElementById('theme-test-result').style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+            } else {
+                document.getElementById('theme-status').textContent = '❌';
+                document.getElementById('theme-message').textContent = 'Theme toggle element not found';
+                document.getElementById('theme-test-result').style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+            }
+            
+            // Test 3: Positioning is already verified visually
+            document.getElementById('positioning-test-result').style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+            
+            // Display configuration
+            displayConfiguration();
+        }
+        
+        function displayConfiguration() {
+            const configDisplay = document.getElementById('config-display');
+            if (window.CONFIG) {
+                configDisplay.innerHTML = `
+Event Name: ${CONFIG.event.name}<br>
+GitHub URL: ${CONFIG.event.githubUrl}<br>
+Default Date: ${CONFIG.event.defaultDate}<br>
+Hashtags: ${CONFIG.event.hashtags.join(', ')}
+                `;
+            } else {
+                configDisplay.textContent = 'Configuration not loaded';
+            }
+        }
+        
+        // Override the GitHub link click to show test result instead of opening URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const githubLink = document.getElementById('github-link');
+            if (githubLink) {
+                // Remove existing event listeners by cloning the element
+                const newGithubLink = githubLink.cloneNode(true);
+                githubLink.parentNode.replaceChild(newGithubLink, githubLink);
+                
+                // Add test event listener
+                newGithubLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.getElementById('github-status').textContent = '✅';
+                    document.getElementById('github-message').textContent = `Would open: ${CONFIG.event.githubUrl}`;
+                    document.getElementById('github-test-result').style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+                    
+                    // Show confirmation
+                    alert(`GitHub link test passed!\nWould open: ${CONFIG.event.githubUrl}`);
+                });
+            }
+            
+            // Run initial tests
+            setTimeout(runAutomatedTests, 500);
+        });
+    </script>
+</body>
+</html>

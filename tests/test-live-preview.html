@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Preview Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-container { display: flex; gap: 20px; }
+        .test-form { flex: 1; }
+        .test-canvas { flex: 1; }
+        input, textarea { width: 100%; margin: 5px 0; padding: 8px; }
+        canvas { border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>Live Preview Test</h1>
+    <div class="test-container">
+        <div class="test-form">
+            <h2>Test Form</h2>
+            <input type="text" id="test-name" placeholder="Speaker Name" maxlength="60">
+            <input type="text" id="test-topic" placeholder="Topic Title" maxlength="100">
+            <textarea id="test-bio" placeholder="Speaker Bio" maxlength="300" rows="4"></textarea>
+        </div>
+        <div class="test-canvas">
+            <h2>Live Preview</h2>
+            <canvas id="test-canvas" width="400" height="300"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Simple test to verify live preview functionality
+        const canvas = document.getElementById('test-canvas');
+        const ctx = canvas.getContext('2d');
+        const nameInput = document.getElementById('test-name');
+        const topicInput = document.getElementById('test-topic');
+        const bioInput = document.getElementById('test-bio');
+
+        function renderTest() {
+            // Clear canvas
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 400, 300);
+            
+            // Draw header
+            ctx.fillStyle = '#ff9900';
+            ctx.fillRect(0, 0, 400, 40);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Test Preview', 200, 25);
+            
+            // Draw content
+            ctx.fillStyle = '#333333';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'left';
+            
+            const name = nameInput.value || 'Enter speaker name...';
+            const topic = topicInput.value || 'Enter topic title...';
+            const bio = bioInput.value || 'Enter speaker bio...';
+            
+            ctx.fillText('🎙️ ' + name, 10, 70);
+            ctx.fillText('📌 ' + topic, 10, 100);
+            
+            // Simple text wrapping for bio
+            const words = bio.split(' ');
+            let line = '';
+            let y = 130;
+            
+            ctx.fillText('👤 Bio:', 10, y);
+            y += 20;
+            
+            for (let word of words) {
+                const testLine = line + word + ' ';
+                const metrics = ctx.measureText(testLine);
+                
+                if (metrics.width > 350 && line !== '') {
+                    ctx.fillText(line, 30, y);
+                    line = word + ' ';
+                    y += 20;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, 30, y);
+        }
+
+        // Add event listeners for live updates
+        [nameInput, topicInput, bioInput].forEach(input => {
+            input.addEventListener('input', renderTest);
+            input.addEventListener('keyup', renderTest);
+            input.addEventListener('paste', () => setTimeout(renderTest, 10));
+        });
+
+        // Initial render
+        renderTest();
+        
+        console.log('Live preview test initialized');
+    </script>
+</body>
+</html>

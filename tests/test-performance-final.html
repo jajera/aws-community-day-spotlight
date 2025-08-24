@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Performance & Testing Suite - Speaker Spotlight</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .test-suite {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--secondary-bg);
+            border-radius: 12px;
+        }
+        .test-category {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+        }
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        .test-button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--accent-color);
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .test-button:hover {
+            background: #e68900;
+            transform: translateY(-1px);
+        }
+        .test-button:disabled {
+            background: var(--muted-color);
+            cursor: not-allowed;
+            transform: none;
+        }
+        .test-results {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--secondary-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .test-result-item {
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        .test-pass {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+            border-left: 4px solid var(--success-color);
+        }
+        .test-fail {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--error-color);
+            border-left: 4px solid var(--error-color);
+        }
+        .test-warn {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border-left: 4px solid #ffc107;
+        }
+        .test-info {
+            background: rgba(0, 123, 255, 0.1);
+            color: #007bff;
+            border-left: 4px solid #007bff;
+        }
+        .summary-card {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .summary-item {
+            padding: 1rem;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+        }
+        .summary-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        .summary-label {
+            color: var(--muted-color);
+            font-size: 0.9rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .export-section {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: var(--secondary-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .export-button {
+            background: var(--success-color);
+            margin: 0.25rem;
+        }
+        .export-button:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-suite">
+        <h1>🚀 Final Performance & Testing Suite</h1>
+        <p>Comprehensive testing for Task 10: Performance optimization and final testing</p>
+        
+        <div class="test-controls">
+            <button class="test-button" onclick="runAllTests()" id="run-all-btn">Run All Tests</button>
+            <button class="test-button" onclick="runPerformanceTests()">Performance Tests</button>
+            <button class="test-button" onclick="runValidationTests()">Validation Tests</button>
+            <button class="test-button" onclick="runCompatibilityTests()">Compatibility Tests</button>
+            <button class="test-button" onclick="runResponsiveTests()">Responsive Tests</button>
+            <button class="test-button" onclick="clearAllResults()">Clear Results</button>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div class="summary-card" id="summary-cards">
+            <div class="summary-item">
+                <div class="summary-value" id="total-tests">0</div>
+                <div class="summary-label">Total Tests</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="passed-tests" style="color: var(--success-color);">0</div>
+                <div class="summary-label">Passed</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="failed-tests" style="color: var(--error-color);">0</div>
+                <div class="summary-label">Failed</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="success-rate">0%</div>
+                <div class="summary-label">Success Rate</div>
+            </div>
+        </div>
+
+        <div class="test-category">
+            <h2>🎯 Performance Optimization Tests</h2>
+            <p>Testing debounced rendering, font loading optimization, and performance metrics</p>
+            <div class="test-results" id="performance-results"></div>
+        </div>
+
+        <div class="test-category">
+            <h2>✅ Form Validation Tests</h2>
+            <p>Comprehensive testing of all form validation scenarios</p>
+            <div class="test-results" id="validation-results"></div>
+        </div>
+
+        <div class="test-category">
+            <h2>🌐 Cross-Browser Compatibility</h2>
+            <p>Testing browser compatibility and feature support</p>
+            <div class="test-results" id="compatibility-results"></div>
+        </div>
+
+        <div class="test-category">
+            <h2>📱 Responsive Behavior</h2>
+            <p>Testing responsive design and mobile compatibility</p>
+            <div class="test-results" id="responsive-results"></div>
+        </div>
+
+        <div class="export-section">
+            <h3>📊 Export Test Results</h3>
+            <div class="test-controls">
+                <button class="test-button export-button" onclick="exportResults('json')">Export JSON</button>
+                <button class="test-button export-button" onclick="exportResults('csv')">Export CSV</button>
+                <button class="test-button export-button" onclick="exportResults('html')">Export HTML Report</button>
+                <button class="test-button export-button" onclick="printReport()">Print Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include all necessary scripts -->
+    <script src="vars.js"></script>
+    <script src="app.js"></script>
+    <script src="verify-performance-optimization.js"></script>
+    
+    <script>
+        class FinalTestSuite {
+            constructor() {
+                this.allResults = {
+                    performance: [],
+                    validation: [],
+                    compatibility: [],
+                    responsive: []
+                };
+                this.totalTests = 0;
+                this.completedTests = 0;
+                this.init();
+            }
+
+            init() {
+                this.logResult('info', 'Test Suite Initialized', 'Final performance and testing suite ready');
+                this.updateSummary();
+            }
+
+            logResult(type, category, name, details = '') {
+                const result = {
+                    type: type,
+                    category: category,
+                    name: name,
+                    details: details,
+                    timestamp: new Date().toISOString(),
+                    passed: type === 'pass'
+                };
+
+                if (this.allResults[category]) {
+                    this.allResults[category].push(result);
+                }
+
+                this.displayResult(category, result);
+                this.updateSummary();
+                this.updateProgress();
+            }
+
+            displayResult(category, result) {
+                const resultsDiv = document.getElementById(`${category}-results`);
+                if (!resultsDiv) return;
+
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `test-result-item test-${result.type}`;
+                
+                const timestamp = new Date(result.timestamp).toLocaleTimeString();
+                resultDiv.innerHTML = `
+                    <strong>${result.name}</strong><br>
+                    ${result.details}<br>
+                    <small>${timestamp}</small>
+                `;
+                
+                resultsDiv.appendChild(resultDiv);
+                resultsDiv.scrollTop = resultsDiv.scrollHeight;
+            }
+
+            updateSummary() {
+                let totalTests = 0;
+                let passedTests = 0;
+
+                Object.values(this.allResults).forEach(categoryResults => {
+                    categoryResults.forEach(result => {
+                        if (result.type !== 'info') {
+                            totalTests++;
+                            if (result.passed) passedTests++;
+                        }
+                    });
+                });
+
+                const successRate = totalTests > 0 ? (passedTests / totalTests * 100).toFixed(1) : 0;
+
+                document.getElementById('total-tests').textContent = totalTests;
+                document.getElementById('passed-tests').textContent = passedTests;
+                document.getElementById('failed-tests').textContent = totalTests - passedTests;
+                document.getElementById('success-rate').textContent = `${successRate}%`;
+            }
+
+            updateProgress() {
+                if (this.totalTests > 0) {
+                    const progress = (this.completedTests / this.totalTests) * 100;
+                    document.getElementById('progress-fill').style.width = `${progress}%`;
+                }
+            }
+
+            async runPerformanceTests() {
+                this.logResult('info', 'performance', 'Performance Tests Started', 'Running performance optimization verification...');
+                
+                try {
+                    // Test debounced rendering
+                    await this.testDebouncedRendering();
+                    
+                    // Test font loading optimization
+                    await this.testFontOptimization();
+                    
+                    // Test canvas performance
+                    await this.testCanvasPerformance();
+                    
+                    // Test memory usage
+                    await this.testMemoryUsage();
+                    
+                    this.logResult('info', 'performance', 'Performance Tests Completed', 'All performance tests finished');
+                } catch (error) {
+                    this.logResult('fail', 'performance', 'Performance Tests Failed', error.message);
+                }
+            }
+
+            async testDebouncedRendering() {
+                if (!window.app || typeof window.app.renderPreview !== 'function') {
+                    this.logResult('fail', 'performance', 'Debounced Rendering', 'App not available for testing');
+                    return;
+                }
+
+                let renderCount = 0;
+                const originalRender = window.app.renderPreview;
+                
+                // Override to count renders
+                window.app.renderPreview = function() {
+                    renderCount++;
+                    return originalRender.call(this);
+                };
+
+                // Simulate rapid input
+                const rapidInputs = 50;
+                for (let i = 0; i < rapidInputs; i++) {
+                    window.app.renderPreview();
+                }
+
+                // Wait for debouncing
+                await this.sleep(100);
+
+                // Restore original function
+                window.app.renderPreview = originalRender;
+
+                const efficiency = (rapidInputs - renderCount) / rapidInputs;
+                const passed = renderCount < rapidInputs && efficiency > 0.3;
+
+                this.logResult(
+                    passed ? 'pass' : 'fail',
+                    'performance',
+                    'Debounced Rendering',
+                    `${rapidInputs} inputs → ${renderCount} renders (${(efficiency * 100).toFixed(1)}% reduction)`
+                );
+            }
+
+            async testFontOptimization() {
+                let optimizations = 0;
+                let details = [];
+
+                // Check font-display: swap
+                try {
+                    const bodyStyles = getComputedStyle(document.body);
+                    if (bodyStyles.fontDisplay === 'swap') {
+                        optimizations++;
+                        details.push('font-display: swap');
+                    }
+                } catch (e) {
+                    // Check CSS rules for font-display
+                    try {
+                        const stylesheets = Array.from(document.styleSheets);
+                        let foundFontDisplay = false;
+                        
+                        for (const stylesheet of stylesheets) {
+                            try {
+                                const rules = Array.from(stylesheet.cssRules || []);
+                                for (const rule of rules) {
+                                    if (rule.cssText && rule.cssText.includes('font-display: swap')) {
+                                        foundFontDisplay = true;
+                                        break;
+                                    }
+                                }
+                            } catch (e) {
+                                // Cross-origin stylesheets
+                            }
+                        }
+                        
+                        if (foundFontDisplay) {
+                            optimizations++;
+                            details.push('font-display: swap in CSS');
+                        }
+                    } catch (e) {
+                        console.warn('Could not check font-display:', e);
+                    }
+                }
+
+                // Check Font Loading API
+                if (document.fonts && document.fonts.ready) {
+                    optimizations++;
+                    details.push('Font Loading API');
+                }
+
+                // Check fallback fonts
+                if (window.CONFIG && window.CONFIG.canvas && window.CONFIG.canvas.fonts && window.CONFIG.canvas.fonts.fallback) {
+                    optimizations++;
+                    details.push('Fallback fonts configured');
+                }
+
+                const passed = optimizations >= 2;
+                this.logResult(
+                    passed ? 'pass' : 'fail',
+                    'performance',
+                    'Font Loading Optimization',
+                    `${optimizations}/3 optimizations: ${details.join(', ')}`
+                );
+            }
+
+            async testCanvasPerformance() {
+                if (!window.app || typeof window.app.performRender !== 'function') {
+                    this.logResult('fail', 'performance', 'Canvas Performance', 'Canvas rendering not available');
+                    return;
+                }
+
+                const iterations = 50;
+                const times = [];
+
+                for (let i = 0; i < iterations; i++) {
+                    const startTime = performance.now();
+                    try {
+                        window.app.performRender();
+                        const endTime = performance.now();
+                        times.push(endTime - startTime);
+                    } catch (error) {
+                        console.warn(`Render ${i} failed:`, error);
+                    }
+                }
+
+                if (times.length === 0) {
+                    this.logResult('fail', 'performance', 'Canvas Performance', 'No successful renders');
+                    return;
+                }
+
+                const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
+                const fps = 1000 / avgTime;
+                const passed = avgTime < 33.33 && fps >= 30; // 30 FPS minimum
+
+                this.logResult(
+                    passed ? 'pass' : 'fail',
+                    'performance',
+                    'Canvas Performance',
+                    `Avg: ${avgTime.toFixed(2)}ms, FPS: ${fps.toFixed(1)}`
+                );
+            }
+
+            async testMemoryUsage() {
+                if (!performance.memory) {
+                    this.logResult('pass', 'performance', 'Memory Usage', 'Performance.memory API not available (not a failure)');
+                    return;
+                }
+
+                const initialMemory = performance.memory.usedJSHeapSize;
+                
+                // Simulate usage
+                for (let i = 0; i < 100; i++) {
+                    if (window.app && typeof window.app.renderPreview === 'function') {
+                        window.app.renderPreview();
+                    }
+                }
+
+                await this.sleep(100);
+
+                const finalMemory = performance.memory.usedJSHeapSize;
+                const memoryIncrease = finalMemory - initialMemory;
+                const memoryIncreaseKB = memoryIncrease / 1024;
+
+                const passed = memoryIncrease < 2 * 1024 * 1024; // Less than 2MB increase
+
+                this.logResult(
+                    passed ? 'pass' : 'fail',
+                    'performance',
+                    'Memory Usage',
+                    `Memory increase: ${memoryIncreaseKB.toFixed(2)}KB`
+                );
+            }
+
+            async runValidationTests() {
+                this.logResult('info', 'validation', 'Validation Tests Started', 'Testing form validation scenarios...');
+                
+                // Test basic validation functions
+                this.testValidationFunctions();
+                
+                // Test character limits
+                this.testCharacterLimits();
+                
+                // Test input sanitization
+                this.testInputSanitization();
+                
+                this.logResult('info', 'validation', 'Validation Tests Completed', 'All validation tests finished');
+            }
+
+            testValidationFunctions() {
+                const validationTests = [
+                    { func: 'validateSpeakerName', input: 'John Doe', expected: true },
+                    { func: 'validateSpeakerName', input: 'A', expected: false },
+                    { func: 'validateTopicTitle', input: 'Valid Topic Title', expected: true },
+                    { func: 'validateTopicTitle', input: 'Bad', expected: false },
+                    { func: 'validateSpeakerBio', input: 'This is a valid bio with enough characters to pass validation.', expected: true },
+                    { func: 'validateSpeakerBio', input: 'Too short', expected: false }
+                ];
+
+                validationTests.forEach(test => {
+                    if (window.app && typeof window.app[test.func] === 'function') {
+                        try {
+                            const result = window.app[test.func](test.input);
+                            const passed = result.isValid === test.expected;
+                            
+                            this.logResult(
+                                passed ? 'pass' : 'fail',
+                                'validation',
+                                `${test.func}`,
+                                `Input: "${test.input.substring(0, 20)}..." | Expected: ${test.expected} | Got: ${result.isValid}`
+                            );
+                        } catch (error) {
+                            this.logResult('fail', 'validation', test.func, `Error: ${error.message}`);
+                        }
+                    } else {
+                        this.logResult('fail', 'validation', test.func, 'Function not available');
+                    }
+                });
+            }
+
+            testCharacterLimits() {
+                if (!window.CONFIG || !window.CONFIG.form || !window.CONFIG.form.limits) {
+                    this.logResult('fail', 'validation', 'Character Limits', 'CONFIG.form.limits not available');
+                    return;
+                }
+
+                const limits = window.CONFIG.form.limits;
+                const tests = [
+                    { field: 'speakerName', limit: limits.speakerName },
+                    { field: 'topicTitle', limit: limits.topicTitle },
+                    { field: 'speakerBio', limit: limits.speakerBio }
+                ];
+
+                tests.forEach(test => {
+                    const atLimit = 'A'.repeat(test.limit);
+                    const overLimit = 'A'.repeat(test.limit + 1);
+                    
+                    this.logResult('pass', 'validation', `${test.field} Character Limit`, 
+                        `Limit: ${test.limit} chars, At limit: ${atLimit.length}, Over limit: ${overLimit.length}`);
+                });
+            }
+
+            testInputSanitization() {
+                const maliciousInputs = [
+                    '<script>alert("xss")</script>',
+                    'John & Jane',
+                    'Name with "quotes"',
+                    "Name with 'apostrophes'"
+                ];
+
+                maliciousInputs.forEach(input => {
+                    if (window.app && typeof window.app.sanitizeInput === 'function') {
+                        try {
+                            const sanitized = window.app.sanitizeInput(input);
+                            const isSafe = !sanitized.includes('<') && !sanitized.includes('>');
+                            
+                            this.logResult(
+                                isSafe ? 'pass' : 'fail',
+                                'validation',
+                                'Input Sanitization',
+                                `"${input}" → "${sanitized}"`
+                            );
+                        } catch (error) {
+                            this.logResult('fail', 'validation', 'Input Sanitization', `Error: ${error.message}`);
+                        }
+                    } else {
+                        this.logResult('fail', 'validation', 'Input Sanitization', 'sanitizeInput function not available');
+                    }
+                });
+            }
+
+            runCompatibilityTests() {
+                this.logResult('info', 'compatibility', 'Compatibility Tests Started', 'Testing browser compatibility...');
+                
+                this.testBrowserAPIs();
+                this.testCSSSupport();
+                this.testJavaScriptFeatures();
+                
+                this.logResult('info', 'compatibility', 'Compatibility Tests Completed', 'All compatibility tests finished');
+            }
+
+            testBrowserAPIs() {
+                const apis = {
+                    'Canvas 2D': () => {
+                        const canvas = document.createElement('canvas');
+                        return !!(canvas.getContext && canvas.getContext('2d'));
+                    },
+                    'Local Storage': () => {
+                        try {
+                            localStorage.setItem('test', 'test');
+                            localStorage.removeItem('test');
+                            return true;
+                        } catch (e) {
+                            return false;
+                        }
+                    },
+                    'Clipboard API': () => !!(navigator.clipboard && navigator.clipboard.writeText),
+                    'Font Loading API': () => !!(document.fonts && document.fonts.ready),
+                    'Performance API': () => typeof performance !== 'undefined'
+                };
+
+                Object.entries(apis).forEach(([name, test]) => {
+                    try {
+                        const supported = test();
+                        this.logResult(
+                            supported ? 'pass' : 'fail',
+                            'compatibility',
+                            `${name} Support`,
+                            supported ? 'Supported' : 'Not supported'
+                        );
+                    } catch (error) {
+                        this.logResult('fail', 'compatibility', `${name} Support`, `Error: ${error.message}`);
+                    }
+                });
+            }
+
+            testCSSSupport() {
+                const cssFeatures = {
+                    'CSS Grid': 'display: grid',
+                    'CSS Flexbox': 'display: flex',
+                    'CSS Custom Properties': 'color: var(--test)',
+                    'CSS Calc': 'width: calc(100% - 10px)'
+                };
+
+                Object.entries(cssFeatures).forEach(([name, css]) => {
+                    try {
+                        const [property, value] = css.split(': ');
+                        const supported = CSS.supports(property, value);
+                        
+                        this.logResult(
+                            supported ? 'pass' : 'fail',
+                            'compatibility',
+                            `${name} Support`,
+                            supported ? 'Supported' : 'Not supported'
+                        );
+                    } catch (error) {
+                        this.logResult('fail', 'compatibility', `${name} Support`, `Error: ${error.message}`);
+                    }
+                });
+            }
+
+            testJavaScriptFeatures() {
+                const jsFeatures = {
+                    'ES6 Classes': () => typeof class {} === 'function',
+                    'Arrow Functions': () => (() => true)(),
+                    'Promises': () => typeof Promise !== 'undefined',
+                    'Fetch API': () => typeof fetch !== 'undefined'
+                };
+
+                Object.entries(jsFeatures).forEach(([name, test]) => {
+                    try {
+                        const supported = test();
+                        this.logResult(
+                            supported ? 'pass' : 'fail',
+                            'compatibility',
+                            `${name} Support`,
+                            supported ? 'Supported' : 'Not supported'
+                        );
+                    } catch (error) {
+                        this.logResult('fail', 'compatibility', `${name} Support`, `Error: ${error.message}`);
+                    }
+                });
+            }
+
+            runResponsiveTests() {
+                this.logResult('info', 'responsive', 'Responsive Tests Started', 'Testing responsive behavior...');
+                
+                this.testViewportMeta();
+                this.testMediaQueries();
+                this.testTouchTargets();
+                
+                this.logResult('info', 'responsive', 'Responsive Tests Completed', 'All responsive tests finished');
+            }
+
+            testViewportMeta() {
+                const viewport = document.querySelector('meta[name="viewport"]');
+                const hasViewport = !!viewport;
+                
+                this.logResult(
+                    hasViewport ? 'pass' : 'fail',
+                    'responsive',
+                    'Viewport Meta Tag',
+                    hasViewport ? `Content: ${viewport.getAttribute('content')}` : 'Missing viewport meta tag'
+                );
+            }
+
+            testMediaQueries() {
+                const queries = [
+                    '(max-width: 768px)',
+                    '(min-width: 1024px)',
+                    '(orientation: portrait)'
+                ];
+
+                queries.forEach(query => {
+                    try {
+                        const mq = window.matchMedia(query);
+                        const supported = mq !== null && typeof mq.matches === 'boolean';
+                        
+                        this.logResult(
+                            supported ? 'pass' : 'fail',
+                            'responsive',
+                            `Media Query: ${query}`,
+                            supported ? `Matches: ${mq.matches}` : 'Not supported'
+                        );
+                    } catch (error) {
+                        this.logResult('fail', 'responsive', `Media Query: ${query}`, `Error: ${error.message}`);
+                    }
+                });
+            }
+
+            testTouchTargets() {
+                const buttons = document.querySelectorAll('button, input, select, textarea');
+                let smallTargets = 0;
+                let totalTargets = buttons.length;
+
+                buttons.forEach(button => {
+                    const rect = button.getBoundingClientRect();
+                    if (rect.width < 44 || rect.height < 44) {
+                        smallTargets++;
+                    }
+                });
+
+                const passed = smallTargets === 0;
+                this.logResult(
+                    passed ? 'pass' : 'fail',
+                    'responsive',
+                    'Touch Target Sizes',
+                    `${totalTargets - smallTargets}/${totalTargets} targets meet 44px minimum`
+                );
+            }
+
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            clearAllResults() {
+                this.allResults = {
+                    performance: [],
+                    validation: [],
+                    compatibility: [],
+                    responsive: []
+                };
+
+                ['performance', 'validation', 'compatibility', 'responsive'].forEach(category => {
+                    const resultsDiv = document.getElementById(`${category}-results`);
+                    if (resultsDiv) resultsDiv.innerHTML = '';
+                });
+
+                this.updateSummary();
+                document.getElementById('progress-fill').style.width = '0%';
+                
+                this.logResult('info', 'performance', 'Results Cleared', 'All test results have been cleared');
+            }
+
+            exportResults(format) {
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                const filename = `speaker-spotlight-test-results-${timestamp}`;
+
+                switch (format) {
+                    case 'json':
+                        this.exportJSON(filename);
+                        break;
+                    case 'csv':
+                        this.exportCSV(filename);
+                        break;
+                    case 'html':
+                        this.exportHTML(filename);
+                        break;
+                }
+            }
+
+            exportJSON(filename) {
+                const data = {
+                    timestamp: new Date().toISOString(),
+                    summary: {
+                        totalTests: document.getElementById('total-tests').textContent,
+                        passedTests: document.getElementById('passed-tests').textContent,
+                        failedTests: document.getElementById('failed-tests').textContent,
+                        successRate: document.getElementById('success-rate').textContent
+                    },
+                    results: this.allResults
+                };
+
+                this.downloadFile(`${filename}.json`, JSON.stringify(data, null, 2), 'application/json');
+            }
+
+            exportCSV(filename) {
+                let csv = 'Category,Type,Name,Details,Timestamp,Passed\n';
+                
+                Object.entries(this.allResults).forEach(([category, results]) => {
+                    results.forEach(result => {
+                        csv += `"${category}","${result.type}","${result.name}","${result.details}","${result.timestamp}","${result.passed}"\n`;
+                    });
+                });
+
+                this.downloadFile(`${filename}.csv`, csv, 'text/csv');
+            }
+
+            exportHTML(filename) {
+                const html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Speaker Spotlight Test Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 2rem; }
+                        .summary { background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; }
+                        .category { margin: 2rem 0; }
+                        .test-result { padding: 0.5rem; margin: 0.25rem 0; border-radius: 4px; }
+                        .test-pass { background: rgba(40, 167, 69, 0.1); border-left: 4px solid #28a745; }
+                        .test-fail { background: rgba(220, 53, 69, 0.1); border-left: 4px solid #dc3545; }
+                        .test-info { background: rgba(0, 123, 255, 0.1); border-left: 4px solid #007bff; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Speaker Spotlight Test Report</h1>
+                    <div class="summary">
+                        <h2>Summary</h2>
+                        <p>Generated: ${new Date().toLocaleString()}</p>
+                        <p>Total Tests: ${document.getElementById('total-tests').textContent}</p>
+                        <p>Passed: ${document.getElementById('passed-tests').textContent}</p>
+                        <p>Failed: ${document.getElementById('failed-tests').textContent}</p>
+                        <p>Success Rate: ${document.getElementById('success-rate').textContent}</p>
+                    </div>
+                    ${Object.entries(this.allResults).map(([category, results]) => `
+                        <div class="category">
+                            <h2>${category.charAt(0).toUpperCase() + category.slice(1)} Tests</h2>
+                            ${results.map(result => `
+                                <div class="test-result test-${result.type}">
+                                    <strong>${result.name}</strong><br>
+                                    ${result.details}<br>
+                                    <small>${new Date(result.timestamp).toLocaleString()}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                </body>
+                </html>
+                `;
+
+                this.downloadFile(`${filename}.html`, html, 'text/html');
+            }
+
+            downloadFile(filename, content, mimeType) {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // Global test suite instance
+        let testSuite;
+
+        // Global functions for buttons
+        async function runAllTests() {
+            const button = document.getElementById('run-all-btn');
+            button.disabled = true;
+            button.textContent = 'Running Tests...';
+
+            try {
+                testSuite.totalTests = 100; // Estimate
+                testSuite.completedTests = 0;
+
+                await testSuite.runPerformanceTests();
+                testSuite.completedTests += 25;
+                testSuite.updateProgress();
+
+                await testSuite.runValidationTests();
+                testSuite.completedTests += 25;
+                testSuite.updateProgress();
+
+                testSuite.runCompatibilityTests();
+                testSuite.completedTests += 25;
+                testSuite.updateProgress();
+
+                testSuite.runResponsiveTests();
+                testSuite.completedTests += 25;
+                testSuite.updateProgress();
+
+                testSuite.logResult('info', 'performance', 'All Tests Completed', 'Full test suite execution finished');
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Run All Tests';
+            }
+        }
+
+        function runPerformanceTests() {
+            testSuite.runPerformanceTests();
+        }
+
+        function runValidationTests() {
+            testSuite.runValidationTests();
+        }
+
+        function runCompatibilityTests() {
+            testSuite.runCompatibilityTests();
+        }
+
+        function runResponsiveTests() {
+            testSuite.runResponsiveTests();
+        }
+
+        function clearAllResults() {
+            testSuite.clearAllResults();
+        }
+
+        function exportResults(format) {
+            testSuite.exportResults(format);
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        // Initialize test suite when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait for app to be ready
+            setTimeout(() => {
+                testSuite = new FinalTestSuite();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio Override Test</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <div class="form-section">
+            <h1>Bio Override Test</h1>
+            <form class="speaker-form">
+                <div class="form-group">
+                    <label for="speaker-bio">Speaker Bio <span class="required-indicator" aria-label="required">*</span></label>
+                    <div class="bio-input-container">
+                        <textarea id="speaker-bio" name="speakerBio" rows="4" required 
+                                  aria-describedby="bio-counter bio-help bio-override-help" 
+                                  aria-invalid="false"
+                                  autocomplete="off"></textarea>
+                        <button type="button" id="bio-override-toggle" class="override-toggle" 
+                                aria-label="Toggle character limit override" 
+                                aria-pressed="false"
+                                title="Click to override 300 character limit">
+                            <span class="override-icon">🔓</span>
+                            <span class="override-text">Override Limit</span>
+                        </button>
+                    </div>
+                    <div class="char-counter" id="bio-counter" aria-live="polite">
+                        <span>0</span>/300
+                    </div>
+                    <div id="bio-help" class="sr-only">Enter a brief biography of the speaker. Use the override button to exceed the default 300 character limit.</div>
+                    <div id="bio-override-help" class="sr-only">Character limit override is disabled by default</div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" id="test-override-btn" class="btn btn-secondary">
+                        Test Override
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="preview-section">
+            <h2>Test Results</h2>
+            <div id="test-results">
+                <p>Click the override button to test the functionality.</p>
+                <p>Current maxlength: <span id="current-maxlength">300</span></p>
+                <p>Override enabled: <span id="override-status">false</span></p>
+                <p>Character count: <span id="char-count">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="vars.js"></script>
+    <script>
+        // Simple test implementation
+        document.addEventListener('DOMContentLoaded', function() {
+            const overrideToggle = document.getElementById('bio-override-toggle');
+            const speakerBio = document.getElementById('speaker-bio');
+            const testBtn = document.getElementById('test-override-btn');
+            
+            // Set initial state
+            overrideToggle.setAttribute('aria-pressed', 'false');
+            speakerBio.setAttribute('maxlength', CONFIG.form.limits.speakerBio);
+            
+            // Update display
+            function updateDisplay() {
+                const isOverrideEnabled = overrideToggle.getAttribute('aria-pressed') === 'true';
+                const currentMaxlength = speakerBio.getAttribute('maxlength') || 'No limit';
+                const charCount = speakerBio.value.length;
+                
+                document.getElementById('current-maxlength').textContent = currentMaxlength;
+                document.getElementById('override-status').textContent = isOverrideEnabled.toString();
+                document.getElementById('char-count').textContent = charCount;
+            }
+            
+            // Override toggle functionality
+            overrideToggle.addEventListener('click', function() {
+                const isPressed = this.getAttribute('aria-pressed') === 'true';
+                const newState = !isPressed;
+                
+                this.setAttribute('aria-pressed', newState.toString());
+                
+                if (newState) {
+                    speakerBio.removeAttribute('maxlength');
+                    this.querySelector('.override-text').textContent = 'Limit Overridden';
+                    this.setAttribute('aria-label', 'Character limit override is enabled');
+                    this.setAttribute('title', 'Click to disable character limit override');
+                } else {
+                    speakerBio.setAttribute('maxlength', CONFIG.form.limits.speakerBio);
+                    this.querySelector('.override-text').textContent = 'Override Limit';
+                    this.setAttribute('aria-label', 'Toggle character limit override');
+                    this.setAttribute('title', 'Click to override 300 character limit');
+                }
+                
+                updateDisplay();
+            });
+            
+            // Character counter
+            speakerBio.addEventListener('input', function() {
+                updateDisplay();
+                const counter = document.getElementById('bio-counter');
+                const currentLength = this.value.length;
+                const isOverrideEnabled = overrideToggle.getAttribute('aria-pressed') === 'true';
+                const effectiveLimit = isOverrideEnabled ? CONFIG.form.limits.speakerBioOverride : CONFIG.form.limits.speakerBio;
+                
+                counter.textContent = `${currentLength}/${effectiveLimit}`;
+                
+                // Update counter styling
+                const counterContainer = counter.parentElement || counter;
+                counterContainer.classList.remove('warning', 'error');
+                
+                if (currentLength >= effectiveLimit) {
+                    counterContainer.classList.add('error');
+                } else if (currentLength >= effectiveLimit * 0.9) {
+                    counterContainer.classList.add('warning');
+                }
+            });
+            
+            // Test button
+            testBtn.addEventListener('click', function() {
+                const longBio = 'A'.repeat(500);
+                speakerBio.value = longBio;
+                updateDisplay();
+                
+                // Trigger input event to update counter
+                speakerBio.dispatchEvent(new Event('input'));
+            });
+            
+            // Initialize display
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>

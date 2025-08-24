@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Behavior Test - Speaker Spotlight</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .responsive-test {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--secondary-bg);
+            border-radius: 12px;
+        }
+        .viewport-info {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            font-family: monospace;
+        }
+        .breakpoint-test {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .breakpoint-active {
+            background: rgba(40, 167, 69, 0.1);
+            border-color: var(--success-color);
+        }
+        .breakpoint-inactive {
+            background: rgba(108, 117, 125, 0.1);
+            border-color: var(--muted-color);
+        }
+        .test-controls {
+            margin: 2rem 0;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .test-button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            background: var(--accent-color);
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .test-button:hover {
+            background: #e68900;
+        }
+        .layout-preview {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            background: var(--bg-color);
+        }
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            min-height: 200px;
+        }
+        .layout-column {
+            background: var(--secondary-bg);
+            border: 1px dashed var(--border-color);
+            border-radius: 4px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .touch-target-test {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        .touch-target {
+            height: 44px;
+            background: var(--accent-color);
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        .touch-target.small {
+            height: 32px;
+            background: var(--error-color);
+        }
+        .touch-target.large {
+            height: 56px;
+            background: var(--success-color);
+        }
+        .text-scale-test {
+            margin: 1rem 0;
+        }
+        .text-sample {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: var(--secondary-bg);
+            border-radius: 4px;
+        }
+        .orientation-info {
+            background: var(--secondary-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        @media (max-width: 1200px) {
+            .layout-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .test-controls { flex-direction: column; }
+            .touch-target-test { grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <div class="responsive-test">
+        <h1>Responsive Behavior Test</h1>
+        
+        <div class="viewport-info" id="viewport-info">
+            <h3>Current Viewport Information</h3>
+            <div id="viewport-details">Loading...</div>
+        </div>
+
+        <div class="test-controls">
+            <button class="test-button" onclick="simulateViewport(320, 568)">iPhone SE</button>
+            <button class="test-button" onclick="simulateViewport(375, 667)">iPhone 8</button>
+            <button class="test-button" onclick="simulateViewport(414, 896)">iPhone 11</button>
+            <button class="test-button" onclick="simulateViewport(768, 1024)">iPad</button>
+            <button class="test-button" onclick="simulateViewport(1024, 768)">iPad Landscape</button>
+            <button class="test-button" onclick="simulateViewport(1366, 768)">Laptop</button>
+            <button class="test-button" onclick="simulateViewport(1920, 1080)">Desktop</button>
+            <button class="test-button" onclick="resetViewport()">Reset</button>
+        </div>
+
+        <div class="breakpoint-test" id="mobile-breakpoint">
+            <h3>📱 Mobile Breakpoint (max-width: 768px)</h3>
+            <div id="mobile-status">Checking...</div>
+        </div>
+
+        <div class="breakpoint-test" id="tablet-breakpoint">
+            <h3>📱 Tablet Breakpoint (768px - 1024px)</h3>
+            <div id="tablet-status">Checking...</div>
+        </div>
+
+        <div class="breakpoint-test" id="desktop-breakpoint">
+            <h3>🖥️ Desktop Breakpoint (min-width: 1024px)</h3>
+            <div id="desktop-status">Checking...</div>
+        </div>
+
+        <div class="layout-preview">
+            <h3>Layout Preview (Two-Column → Single Column)</h3>
+            <div class="layout-grid">
+                <div class="layout-column">
+                    <div>
+                        <strong>Form Section</strong><br>
+                        Speaker input form<br>
+                        Character counters<br>
+                        Validation feedback
+                    </div>
+                </div>
+                <div class="layout-column">
+                    <div>
+                        <strong>Preview Section</strong><br>
+                        Canvas preview<br>
+                        Live updates<br>
+                        Copy functionality
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="orientation-info" id="orientation-info">
+            <h3>Device Orientation</h3>
+            <div id="orientation-details">Detecting...</div>
+        </div>
+
+        <div class="touch-target-test">
+            <h3 style="grid-column: 1 / -1;">Touch Target Size Test (WCAG 2.1 AA: min 44px)</h3>
+            <button class="touch-target small" title="32px - Too small">32px</button>
+            <button class="touch-target" title="44px - Minimum size">44px</button>
+            <button class="touch-target large" title="56px - Comfortable size">56px</button>
+            <button class="touch-target large" title="Large button">Large</button>
+        </div>
+
+        <div class="text-scale-test">
+            <h3>Text Scaling Test</h3>
+            <div class="text-sample" style="font-size: 0.8rem;">Small text (0.8rem) - Should remain readable when zoomed</div>
+            <div class="text-sample" style="font-size: 1rem;">Normal text (1rem) - Base font size</div>
+            <div class="text-sample" style="font-size: 1.2rem;">Large text (1.2rem) - Headings and emphasis</div>
+            <div class="text-sample" style="font-size: 1.5rem;">Extra large text (1.5rem) - Main headings</div>
+        </div>
+
+        <div class="breakpoint-test">
+            <h3>CSS Feature Queries</h3>
+            <div id="css-features">Testing CSS support...</div>
+        </div>
+
+        <div class="breakpoint-test">
+            <h3>Performance Metrics</h3>
+            <div id="performance-metrics">Measuring performance...</div>
+        </div>
+    </div>
+
+    <script>
+        class ResponsiveTester {
+            constructor() {
+                this.mediaQueries = {
+                    mobile: window.matchMedia('(max-width: 768px)'),
+                    tablet: window.matchMedia('(min-width: 769px) and (max-width: 1024px)'),
+                    desktop: window.matchMedia('(min-width: 1025px)'),
+                    portrait: window.matchMedia('(orientation: portrait)'),
+                    landscape: window.matchMedia('(orientation: landscape)'),
+                    darkMode: window.matchMedia('(prefers-color-scheme: dark)'),
+                    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)'),
+                    highContrast: window.matchMedia('(prefers-contrast: high)'),
+                    hover: window.matchMedia('(hover: hover)'),
+                    pointer: window.matchMedia('(pointer: fine)')
+                };
+
+                this.init();
+            }
+
+            init() {
+                this.updateViewportInfo();
+                this.setupMediaQueryListeners();
+                this.testBreakpoints();
+                this.testOrientation();
+                this.testCSSFeatures();
+                this.measurePerformance();
+
+                // Update on resize
+                window.addEventListener('resize', () => {
+                    this.updateViewportInfo();
+                    this.testBreakpoints();
+                });
+
+                // Update on orientation change
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(() => {
+                        this.updateViewportInfo();
+                        this.testOrientation();
+                    }, 100);
+                });
+            }
+
+            updateViewportInfo() {
+                const viewport = {
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                    outerWidth: window.outerWidth,
+                    outerHeight: window.outerHeight,
+                    screenWidth: screen.width,
+                    screenHeight: screen.height,
+                    availWidth: screen.availWidth,
+                    availHeight: screen.availHeight,
+                    devicePixelRatio: window.devicePixelRatio || 1,
+                    colorDepth: screen.colorDepth,
+                    pixelDepth: screen.pixelDepth
+                };
+
+                const detailsDiv = document.getElementById('viewport-details');
+                detailsDiv.innerHTML = `
+                    <div><strong>Viewport:</strong> ${viewport.width} × ${viewport.height}px</div>
+                    <div><strong>Window:</strong> ${viewport.outerWidth} × ${viewport.outerHeight}px</div>
+                    <div><strong>Screen:</strong> ${viewport.screenWidth} × ${viewport.screenHeight}px</div>
+                    <div><strong>Available:</strong> ${viewport.availWidth} × ${viewport.availHeight}px</div>
+                    <div><strong>Device Pixel Ratio:</strong> ${viewport.devicePixelRatio}x</div>
+                    <div><strong>Color Depth:</strong> ${viewport.colorDepth}-bit</div>
+                    <div><strong>Aspect Ratio:</strong> ${(viewport.width / viewport.height).toFixed(2)}:1</div>
+                `;
+            }
+
+            setupMediaQueryListeners() {
+                Object.entries(this.mediaQueries).forEach(([name, mq]) => {
+                    mq.addEventListener('change', () => {
+                        this.testBreakpoints();
+                        this.testOrientation();
+                    });
+                });
+            }
+
+            testBreakpoints() {
+                const breakpoints = [
+                    { id: 'mobile', mq: this.mediaQueries.mobile, name: 'Mobile' },
+                    { id: 'tablet', mq: this.mediaQueries.tablet, name: 'Tablet' },
+                    { id: 'desktop', mq: this.mediaQueries.desktop, name: 'Desktop' }
+                ];
+
+                breakpoints.forEach(bp => {
+                    const element = document.getElementById(`${bp.id}-breakpoint`);
+                    const statusDiv = document.getElementById(`${bp.id}-status`);
+                    
+                    if (bp.mq.matches) {
+                        element.className = 'breakpoint-test breakpoint-active';
+                        statusDiv.innerHTML = `✅ ${bp.name} breakpoint is ACTIVE<br><small>Width: ${window.innerWidth}px</small>`;
+                    } else {
+                        element.className = 'breakpoint-test breakpoint-inactive';
+                        statusDiv.innerHTML = `⚪ ${bp.name} breakpoint is inactive<br><small>Width: ${window.innerWidth}px</small>`;
+                    }
+                });
+            }
+
+            testOrientation() {
+                const orientationDiv = document.getElementById('orientation-details');
+                const isPortrait = this.mediaQueries.portrait.matches;
+                const isLandscape = this.mediaQueries.landscape.matches;
+                
+                let orientationText = 'Unknown';
+                if (isPortrait) orientationText = 'Portrait';
+                if (isLandscape) orientationText = 'Landscape';
+
+                // Get screen orientation API info if available
+                let screenOrientation = 'Not available';
+                if (screen.orientation) {
+                    screenOrientation = `${screen.orientation.type} (${screen.orientation.angle}°)`;
+                } else if (window.orientation !== undefined) {
+                    screenOrientation = `${window.orientation}°`;
+                }
+
+                orientationDiv.innerHTML = `
+                    <div><strong>CSS Media Query:</strong> ${orientationText}</div>
+                    <div><strong>Screen Orientation API:</strong> ${screenOrientation}</div>
+                    <div><strong>Aspect Ratio:</strong> ${window.innerWidth > window.innerHeight ? 'Landscape' : 'Portrait'} (${(window.innerWidth / window.innerHeight).toFixed(2)}:1)</div>
+                `;
+            }
+
+            testCSSFeatures() {
+                const features = {
+                    'CSS Grid': 'display: grid',
+                    'CSS Flexbox': 'display: flex',
+                    'CSS Custom Properties': 'color: var(--test)',
+                    'CSS Calc': 'width: calc(100% - 10px)',
+                    'CSS Viewport Units': 'width: 100vw',
+                    'CSS Transforms': 'transform: translateX(10px)',
+                    'CSS Transitions': 'transition: all 0.3s ease',
+                    'CSS Animations': 'animation: test 1s ease',
+                    'CSS Filters': 'filter: blur(5px)',
+                    'CSS Backdrop Filter': 'backdrop-filter: blur(5px)'
+                };
+
+                let supportedFeatures = [];
+                let unsupportedFeatures = [];
+
+                Object.entries(features).forEach(([name, css]) => {
+                    try {
+                        const [property, value] = css.split(': ');
+                        if (CSS.supports(property, value)) {
+                            supportedFeatures.push(name);
+                        } else {
+                            unsupportedFeatures.push(name);
+                        }
+                    } catch (e) {
+                        unsupportedFeatures.push(name);
+                    }
+                });
+
+                const featuresDiv = document.getElementById('css-features');
+                featuresDiv.innerHTML = `
+                    <div><strong>Supported (${supportedFeatures.length}):</strong> ${supportedFeatures.join(', ') || 'None'}</div>
+                    <div><strong>Unsupported (${unsupportedFeatures.length}):</strong> ${unsupportedFeatures.join(', ') || 'None'}</div>
+                `;
+            }
+
+            measurePerformance() {
+                const metricsDiv = document.getElementById('performance-metrics');
+                
+                if (typeof performance === 'undefined') {
+                    metricsDiv.innerHTML = 'Performance API not available';
+                    return;
+                }
+
+                const startTime = performance.now();
+                
+                // Measure layout performance
+                const layoutStart = performance.now();
+                document.body.offsetHeight; // Force layout
+                const layoutTime = performance.now() - layoutStart;
+
+                // Measure paint performance (if available)
+                let paintMetrics = 'Not available';
+                if (performance.getEntriesByType) {
+                    const paintEntries = performance.getEntriesByType('paint');
+                    if (paintEntries.length > 0) {
+                        paintMetrics = paintEntries.map(entry => 
+                            `${entry.name}: ${entry.startTime.toFixed(2)}ms`
+                        ).join(', ');
+                    }
+                }
+
+                // Memory usage (if available)
+                let memoryInfo = 'Not available';
+                if (performance.memory) {
+                    const memory = performance.memory;
+                    memoryInfo = `Used: ${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB, Limit: ${(memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2)}MB`;
+                }
+
+                // Connection info (if available)
+                let connectionInfo = 'Not available';
+                if (navigator.connection) {
+                    const conn = navigator.connection;
+                    connectionInfo = `${conn.effectiveType || 'unknown'} (${conn.downlink || 'unknown'}Mbps)`;
+                }
+
+                const totalTime = performance.now() - startTime;
+
+                metricsDiv.innerHTML = `
+                    <div><strong>Layout Time:</strong> ${layoutTime.toFixed(2)}ms</div>
+                    <div><strong>Paint Metrics:</strong> ${paintMetrics}</div>
+                    <div><strong>Memory Usage:</strong> ${memoryInfo}</div>
+                    <div><strong>Connection:</strong> ${connectionInfo}</div>
+                    <div><strong>Test Duration:</strong> ${totalTime.toFixed(2)}ms</div>
+                `;
+            }
+        }
+
+        // Viewport simulation functions
+        function simulateViewport(width, height) {
+            // Note: This is just for demonstration - actual viewport simulation
+            // would require browser dev tools or a testing framework
+            const info = document.getElementById('viewport-details');
+            info.innerHTML = `
+                <div style="color: var(--accent-color);"><strong>Simulating:</strong> ${width} × ${height}px</div>
+                <div><em>Note: Use browser dev tools for actual viewport simulation</em></div>
+                <div><strong>Current Actual:</strong> ${window.innerWidth} × ${window.innerHeight}px</div>
+            `;
+            
+            // Show what the layout would look like
+            const layoutGrid = document.querySelector('.layout-grid');
+            if (width <= 768) {
+                layoutGrid.style.gridTemplateColumns = '1fr';
+                layoutGrid.style.background = 'rgba(255, 153, 0, 0.1)';
+            } else {
+                layoutGrid.style.gridTemplateColumns = '1fr 1fr';
+                layoutGrid.style.background = 'transparent';
+            }
+        }
+
+        function resetViewport() {
+            const tester = new ResponsiveTester();
+            const layoutGrid = document.querySelector('.layout-grid');
+            layoutGrid.style.gridTemplateColumns = '';
+            layoutGrid.style.background = '';
+        }
+
+        // Initialize responsive tester when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new ResponsiveTester();
+        });
+
+        // Test touch events (if available)
+        if ('ontouchstart' in window) {
+            document.addEventListener('DOMContentLoaded', () => {
+                const touchTargets = document.querySelectorAll('.touch-target');
+                touchTargets.forEach(target => {
+                    target.addEventListener('touchstart', (e) => {
+                        target.style.transform = 'scale(0.95)';
+                    });
+                    target.addEventListener('touchend', (e) => {
+                        target.style.transform = 'scale(1)';
+                    });
+                });
+            });
+        }
+    </script>
+</body>
+</html>

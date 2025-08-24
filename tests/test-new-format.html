@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Format Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .char-counter { color: #666; font-size: 0.9em; }
+        .char-counter.warning { color: #ffc107; }
+        .char-counter.error { color: #dc3545; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .test-result { margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+        .output { background: #f1f3f4; padding: 15px; border-radius: 4px; white-space: pre-wrap; font-family: monospace; margin-top: 20px; }
+        .btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>New LinkedIn Post Format Test</h1>
+    
+    <form id="test-form">
+        <div class="form-group">
+            <label for="speaker-name">Speaker Name</label>
+            <input type="text" id="speaker-name" maxlength="60" placeholder="Enter speaker name" value="John Ajera">
+            <div class="char-counter" id="name-counter">
+                <span>0</span>/60
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="topic-title">Topic Title</label>
+            <input type="text" id="topic-title" maxlength="100" placeholder="Enter topic title" value="Building Scalable Cloud Solutions with AWS">
+            <div class="char-counter" id="topic-counter">
+                <span>0</span>/100
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="speaker-bio">Speaker Bio</label>
+            <textarea id="speaker-bio" rows="4" placeholder="Enter speaker bio">John is a senior cloud architect with extensive experience in AWS and cloud-native technologies. He specializes in serverless architectures, event-driven systems, and helping organizations migrate to the cloud. With a passion for automation and best practices, he has led multiple successful cloud transformation projects and contributes to the AWS community through speaking engagements and open source contributions.</textarea>
+            <div class="char-counter" id="bio-counter">
+                <span>0</span>/300
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="event-date">Date</label>
+            <input type="date" id="event-date" value="2025-09-18">
+        </div>
+        
+        <div class="form-group">
+            <label for="event-time">Time</label>
+            <input type="time" id="event-time" value="08:00">
+        </div>
+        
+        <div class="form-group">
+            <label for="event-format">Format</label>
+            <select id="event-format">
+                <option value="Virtual">Virtual</option>
+                <option value="In-Person" selected>In-Person</option>
+                <option value="Hybrid">Hybrid</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="speaker-linkedin">Speaker LinkedIn Handle</label>
+            <input type="text" id="speaker-linkedin" placeholder="e.g., John Ajera" value="John Ajera">
+        </div>
+        
+        <button type="button" class="btn" onclick="generateText()">Generate LinkedIn Post</button>
+        <button type="button" class="btn" onclick="copyText()">Copy to Clipboard</button>
+    </form>
+    
+    <div class="test-result">
+        <h3>Generated LinkedIn Post:</h3>
+        <div id="output" class="output">Click "Generate LinkedIn Post" to see the formatted text.</div>
+        
+        <h3>LinkedIn User Tagging:</h3>
+        <p><strong>Speaker Handle:</strong> Enter the speaker's full name above (e.g., "John Ajera")</p>
+        <p><strong>Current Configuration:</strong> "{CONFIG.form.defaults.linkedinUsers}"</p>
+        <p><strong>Generated Output:</strong> "@John Ajera @Michael Walmsley @John Ajera Ramaswamy Arunachalam" (speaker + configured users)</p>
+        <p><em>Note: The speaker's name is combined with configured users from vars.js. All names are automatically formatted with @ symbols.</em></p>
+    </div>
+
+    <script src="../vars.js"></script>
+    <script>
+        // Test the new format
+        function generateText() {
+            const formData = getFormData();
+            const template = CONFIG.text.template;
+            
+            // Format date
+            const date = new Date(formData.eventDate);
+            const formattedDate = date.toLocaleDateString('en-NZ', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            // Format time
+            const [hours, minutes] = formData.eventTime.split(':');
+            const hour12 = parseInt(hours) % 12 || 12;
+            const ampm = parseInt(hours) >= 12 ? 'PM' : 'AM';
+            const formattedTime = `${hour12}:${minutes} ${ampm}`;
+            
+            // Generate text
+            let formattedText = template.title
+              .replace('{eventName}', CONFIG.event.name) + '\n\n';
+            
+            formattedText += template.welcome
+              .replace('{welcomeMessage}', CONFIG.event.welcomeMessage.replace('{speakerName}', formData.speakerName.trim())) + '\n\n';
+            
+            formattedText += template.speaker
+              .replace('{name}', formData.speakerName.trim()) + '\n\n';
+            
+            formattedText += template.topic
+              .replace('{topic}', formData.topicTitle.trim()) + '\n\n';
+            
+            formattedText += template.bio
+              .replace('{bio}', formData.speakerBio.trim()) + '\n\n';
+            
+            formattedText += template.description.replace('{description}', CONFIG.event.description) + '\n\n';
+            
+            formattedText += template.date
+              .replace('{date}', formattedDate) + '\n';
+            
+            formattedText += template.time
+              .replace('{time}', formattedTime) + '\n';
+            
+            formattedText += template.schedule.replace('{scheduleUrl}', CONFIG.event.scheduleUrl) + '\n';
+            
+            formattedText += template.registration.replace('{registrationUrl}', CONFIG.event.registrationUrl) + '\n';
+            
+            formattedText += template.format
+              .replace('{format}', formData.eventFormat) + '\n\n';
+            
+            formattedText += template.hashtags
+              .replace('{hashtags}', CONFIG.event.hashtags.join(' ')) + '\n\n';
+            
+            // Add call-to-action
+            formattedText += template.callToAction + '\n\n';
+            
+            // Add LinkedIn users (speaker + configured users)
+            let allLinkedInUsers = [];
+            
+            // Add speaker's LinkedIn handle if provided
+            if (formData.speakerLinkedin.trim()) {
+              const cleanSpeakerUsername = formData.speakerLinkedin.trim().replace(/^@+/, '');
+              allLinkedInUsers.push(cleanSpeakerUsername);
+            }
+            
+            // Add configured LinkedIn users
+            if (formData.linkedinUsers.trim()) {
+              const configuredUsers = formData.linkedinUsers.trim()
+                .split(',')
+                .map(username => username.trim())
+                .filter(username => username.length > 0)
+                .map(username => username.replace(/^@+/, ''));
+              allLinkedInUsers = allLinkedInUsers.concat(configuredUsers);
+            }
+            
+            // Format all users with @ symbols
+            if (allLinkedInUsers.length > 0) {
+              const formattedUsers = allLinkedInUsers
+                .filter(username => username.length > 0)
+                .map(username => `@${username}`)
+                .join(' ');
+              
+              formattedText += formattedUsers + '\n\n';
+            }
+            
+            document.getElementById('output').textContent = formattedText;
+        }
+        
+        function getFormData() {
+            return {
+                speakerName: document.getElementById('speaker-name').value,
+                topicTitle: document.getElementById('topic-title').value,
+                speakerBio: document.getElementById('speaker-bio').value,
+                eventDate: document.getElementById('event-date').value,
+                eventTime: document.getElementById('event-time').value,
+                eventFormat: document.getElementById('event-format').value,
+                speakerLinkedin: document.getElementById('speaker-linkedin').value,
+                linkedinUsers: CONFIG.form.defaults.linkedinUsers
+            };
+        }
+        
+        function copyText() {
+            const output = document.getElementById('output').textContent;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(output).then(() => {
+                    alert('Text copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    alert('Failed to copy text. Please select and copy manually.');
+                });
+            } else {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = output;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Text copied to clipboard!');
+                alert('Text copied to clipboard!');
+            }
+        }
+        
+        // Initialize character counters
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = ['speaker-name', 'topic-title', 'speaker-bio'];
+            
+            inputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                const counter = document.getElementById(inputId.replace('-', '-'));
+                
+                if (input && counter) {
+                    input.addEventListener('input', function() {
+                        const currentLength = this.value.length;
+                        const maxLength = this.maxlength || 300;
+                        
+                        counter.innerHTML = `<span>${currentLength}</span>/${maxLength}`;
+                        
+                        counter.classList.remove('warning', 'error');
+                        if (currentLength >= maxLength) {
+                            counter.classList.add('error');
+                        } else if (currentLength >= maxLength * 0.9) {
+                            counter.classList.add('warning');
+                        }
+                    });
+                    
+                    // Trigger initial count
+                    input.dispatchEvent(new Event('input'));
+                }
+            });
+        });
+    </script>
+</body>
+</html>

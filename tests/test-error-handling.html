@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Handling Test</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .test-section {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        .test-result {
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .test-pass {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+        .test-fail {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+        .test-info {
+            background: rgba(255, 193, 7, 0.1);
+            color: #856404;
+            border: 1px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-icons">
+            <button id="github-link" class="icon-button" aria-label="View source on GitHub">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+            </button>
+            <button id="theme-toggle" class="icon-button" aria-label="Toggle dark mode">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path class="sun-icon" d="M12 17.5c-3.038 0-5.5-2.462-5.5-5.5s2.462-5.5 5.5-5.5 5.5 2.462 5.5 5.5-2.462 5.5-5.5 5.5z"/>
+                    <path class="moon-icon" style="display: none;" d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.46 0 .9-.04 1.34-.1z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="main-container" style="grid-template-columns: 1fr;">
+        <div class="form-section">
+            <h1>Error Handling Test Suite</h1>
+            <p>This page tests the error handling and browser compatibility features implemented in task 9.</p>
+            
+            <div class="test-section">
+                <h2>Test 1: Canvas Support Detection</h2>
+                <div id="test1-results"></div>
+                <button onclick="runTest1()" class="btn btn-secondary">Run Test 1</button>
+            </div>
+            
+            <div class="test-section">
+                <h2>Test 2: Clipboard API Detection</h2>
+                <div id="test2-results"></div>
+                <button onclick="runTest2()" class="btn btn-secondary">Run Test 2</button>
+            </div>
+            
+            <div class="test-section">
+                <h2>Test 3: Font Loading Error Handling</h2>
+                <div id="test3-results"></div>
+                <button onclick="runTest3()" class="btn btn-secondary">Run Test 3</button>
+            </div>
+            
+            <div class="test-section">
+                <h2>Test 4: Input Validation Error States</h2>
+                <div id="test4-results"></div>
+                <button onclick="runTest4()" class="btn btn-secondary">Run Test 4</button>
+            </div>
+            
+            <div class="test-section">
+                <h2>Test 5: Browser Compatibility Detection</h2>
+                <div id="test5-results"></div>
+                <button onclick="runTest5()" class="btn btn-secondary">Run Test 5</button>
+            </div>
+            
+            <div class="form-actions" style="margin-top: 2rem;">
+                <button onclick="runAllTests()" class="btn btn-secondary">Run All Tests</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="vars.js"></script>
+    <script src="app.js"></script>
+    <script>
+        function addTestResult(container, message, type) {
+            const result = document.createElement('div');
+            result.className = `test-result test-${type}`;
+            result.textContent = message;
+            container.appendChild(result);
+        }
+        
+        function runTest1() {
+            const results = document.getElementById('test1-results');
+            results.innerHTML = '<h3>Testing canvas support detection...</h3>';
+            
+            try {
+                // Test canvas support detection
+                const hasCanvas = window.app && typeof window.app.checkCanvasSupport === 'function';
+                if (hasCanvas) {
+                    addTestResult(results, 'PASS: Canvas support detection method exists', 'pass');
+                    
+                    const canvasSupported = window.app.checkCanvasSupport();
+                    if (canvasSupported) {
+                        addTestResult(results, 'PASS: Canvas is supported in this browser', 'pass');
+                    } else {
+                        addTestResult(results, 'INFO: Canvas support detection working (not supported)', 'info');
+                    }
+                } else {
+                    addTestResult(results, 'FAIL: Canvas support detection method not found', 'fail');
+                }
+                
+                // Test canvas error display
+                const canvasContainer = document.querySelector('.canvas-container');
+                if (canvasContainer) {
+                    addTestResult(results, 'PASS: Canvas container found for error display', 'pass');
+                } else {
+                    addTestResult(results, 'INFO: No canvas container (expected for this test page)', 'info');
+                }
+                
+            } catch (error) {
+                addTestResult(results, `FAIL: Error testing canvas support: ${error.message}`, 'fail');
+            }
+        }
+        
+        function runTest2() {
+            const results = document.getElementById('test2-results');
+            results.innerHTML = '<h3>Testing clipboard API detection...</h3>';
+            
+            try {
+                // Test clipboard capabilities detection
+                const hasDetection = window.app && typeof window.app.detectClipboardCapabilities === 'function';
+                if (hasDetection) {
+                    addTestResult(results, 'PASS: Clipboard capabilities detection method exists', 'pass');
+                    
+                    const capabilities = window.app.detectClipboardCapabilities();
+                    addTestResult(results, `INFO: Clipboard API available: ${capabilities.hasClipboardAPI}`, 'info');
+                    addTestResult(results, `INFO: Secure context: ${capabilities.isSecureContext}`, 'info');
+                    addTestResult(results, `INFO: ExecCommand available: ${capabilities.hasExecCommand}`, 'info');
+                    addTestResult(results, `INFO: WriteText supported: ${capabilities.supportsWriteText}`, 'info');
+                } else {
+                    addTestResult(results, 'FAIL: Clipboard capabilities detection method not found', 'fail');
+                }
+                
+                // Test clipboard error handling
+                if (navigator.clipboard) {
+                    addTestResult(results, 'PASS: Native Clipboard API is available', 'pass');
+                } else {
+                    addTestResult(results, 'INFO: Native Clipboard API not available (fallback will be used)', 'info');
+                }
+                
+            } catch (error) {
+                addTestResult(results, `FAIL: Error testing clipboard detection: ${error.message}`, 'fail');
+            }
+        }
+        
+        function runTest3() {
+            const results = document.getElementById('test3-results');
+            results.innerHTML = '<h3>Testing font loading error handling...</h3>';
+            
+            try {
+                // Test font loading initialization
+                const hasFontInit = window.app && typeof window.app.initializeFontLoading === 'function';
+                if (hasFontInit) {
+                    addTestResult(results, 'PASS: Font loading initialization method exists', 'pass');
+                } else {
+                    addTestResult(results, 'FAIL: Font loading initialization method not found', 'fail');
+                }
+                
+                // Test font fallback setup
+                const hasFontFallback = window.app && typeof window.app.setupFontLoadingFallback === 'function';
+                if (hasFontFallback) {
+                    addTestResult(results, 'PASS: Font loading fallback method exists', 'pass');
+                } else {
+                    addTestResult(results, 'FAIL: Font loading fallback method not found', 'fail');
+                }
+                
+                // Test Font Loading API support
+                if ('fonts' in document) {
+                    addTestResult(results, 'PASS: Font Loading API is supported', 'pass');
+                } else {
+                    addTestResult(results, 'INFO: Font Loading API not supported (fallback will be used)', 'info');
+                }
+                
+                // Test canvas font setup
+                const hasFontSetup = window.app && typeof window.app.setupCanvasFont === 'function';
+                if (hasFontSetup) {
+                    addTestResult(results, 'PASS: Canvas font setup method exists', 'pass');
+                } else {
+                    addTestResult(results, 'FAIL: Canvas font setup method not found', 'fail');
+                }
+                
+            } catch (error) {
+                addTestResult(results, `FAIL: Error testing font loading: ${error.message}`, 'fail');
+            }
+        }
+        
+        function runTest4() {
+            const results = document.getElementById('test4-results');
+            results.innerHTML = '<h3>Testing input validation error states...</h3>';
+            
+            try {
+                // Create test form elements
+                const testContainer = document.createElement('div');
+                testContainer.innerHTML = `
+                    <div class="form-group">
+                        <input type="text" id="test-input" maxlength="10" required>
+                    </div>
+                `;
+                document.body.appendChild(testContainer);
+                
+                const testInput = document.getElementById('test-input');
+                
+                // Test validation methods
+                const hasValidation = window.app && typeof window.app.validateField === 'function';
+                if (hasValidation) {
+                    addTestResult(results, 'PASS: Field validation method exists', 'pass');
+                    
+                    // Test empty required field
+                    testInput.value = '';
+                    const emptyResult = window.app.validateField(testInput);
+                    if (!emptyResult) {
+                        addTestResult(results, 'PASS: Empty required field validation works', 'pass');
+                    } else {
+                        addTestResult(results, 'FAIL: Empty required field validation failed', 'fail');
+                    }
+                    
+                    // Test valid input
+                    testInput.value = 'Valid';
+                    const validResult = window.app.validateField(testInput);
+                    if (validResult) {
+                        addTestResult(results, 'PASS: Valid input validation works', 'pass');
+                    } else {
+                        addTestResult(results, 'FAIL: Valid input validation failed', 'fail');
+                    }
+                    
+                } else {
+                    addTestResult(results, 'FAIL: Field validation method not found', 'fail');
+                }
+                
+                // Test error display methods
+                const hasErrorDisplay = window.app && typeof window.app.showFieldError === 'function';
+                if (hasErrorDisplay) {
+                    addTestResult(results, 'PASS: Field error display method exists', 'pass');
+                } else {
+                    addTestResult(results, 'FAIL: Field error display method not found', 'fail');
+                }
+                
+                const hasWarningDisplay = window.app && typeof window.app.showFieldWarning === 'function';
+                if (hasWarningDisplay) {
+                    addTestResult(results, 'PASS: Field warning display method exists', 'pass');
+                } else {
+                    addTestResult(results, 'FAIL: Field warning display method not found', 'fail');
+                }
+                
+                // Clean up
+                document.body.removeChild(testContainer);
+                
+            } catch (error) {
+                addTestResult(results, `FAIL: Error testing input validation: ${error.message}`, 'fail');
+            }
+        }
+        
+        function runTest5() {
+            const results = document.getElementById('test5-results');
+            results.innerHTML = '<h3>Testing browser compatibility detection...</h3>';
+            
+            try {
+                // Test compatibility detection method
+                const hasCompatibility = window.app && typeof window.app.detectBrowserCompatibility === 'function';
+                if (hasCompatibility) {
+                    addTestResult(results, 'PASS: Browser compatibility detection method exists', 'pass');
+                } else {
+                    addTestResult(results, 'FAIL: Browser compatibility detection method not found', 'fail');
+                }
+                
+                // Test global error handling
+                const hasGlobalError = window.app && typeof window.app.setupGlobalErrorHandling === 'function';
+                if (hasGlobalError) {
+                    addTestResult(results, 'PASS: Global error handling setup method exists', 'pass');
+                } else {
+                    addTestResult(results, 'FAIL: Global error handling setup method not found', 'fail');
+                }
+                
+                // Test essential browser features
+                const features = {
+                    'localStorage': !!window.localStorage,
+                    'addEventListener': !!window.addEventListener,
+                    'querySelector': !!document.querySelector,
+                    'forEach': !!Array.prototype.forEach,
+                    'Canvas': !!document.createElement('canvas').getContext
+                };
+                
+                for (const [feature, supported] of Object.entries(features)) {
+                    if (supported) {
+                        addTestResult(results, `PASS: ${feature} is supported`, 'pass');
+                    } else {
+                        addTestResult(results, `FAIL: ${feature} is not supported`, 'fail');
+                    }
+                }
+                
+            } catch (error) {
+                addTestResult(results, `FAIL: Error testing browser compatibility: ${error.message}`, 'fail');
+            }
+        }
+        
+        function runAllTests() {
+            runTest1();
+            setTimeout(() => runTest2(), 100);
+            setTimeout(() => runTest3(), 200);
+            setTimeout(() => runTest4(), 300);
+            setTimeout(() => runTest5(), 400);
+        }
+        
+        // Run basic compatibility check on load
+        window.addEventListener('load', () => {
+            console.log('Error handling test page loaded');
+            
+            // Check if app is initialized
+            if (window.app) {
+                console.log('App initialized successfully');
+            } else {
+                console.error('App not initialized');
+            }
+        });
+    </script>
+</body>
+</html>
