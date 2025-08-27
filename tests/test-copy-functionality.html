@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Copy Functionality</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div style="padding: 2rem;">
+        <h1>Test Copy Functionality</h1>
+        <p>This page tests the text export and clipboard functionality.</p>
+        
+        <div class="form-section" style="max-width: 500px; margin: 2rem 0;">
+            <form id="speaker-form" class="speaker-form">
+                <div class="form-group">
+                    <label for="speaker-name">Speaker Name</label>
+                    <input type="text" id="speaker-name" name="speakerName" maxlength="60" required value="John Doe">
+                    <div class="char-counter">
+                        <span id="name-counter">8</span>/60
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="topic-title">Topic Title</label>
+                    <input type="text" id="topic-title" name="topicTitle" maxlength="100" required value="Building Serverless Applications with AWS Lambda">
+                    <div class="char-counter">
+                        <span id="topic-counter">43</span>/100
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="speaker-bio">Speaker Bio</label>
+                    <textarea id="speaker-bio" name="speakerBio" maxlength="300" rows="4" required>John is a senior cloud architect with 10 years of experience in AWS. He specializes in serverless architectures and has helped numerous companies migrate to the cloud.</textarea>
+                    <div class="char-counter">
+                        <span id="bio-counter">165</span>/300
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="event-date">Date</label>
+                        <input type="date" id="event-date" name="eventDate" required value="2025-03-15">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-time">Time</label>
+                        <input type="time" id="event-time" name="eventTime" value="14:30" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="event-format">Format</label>
+                    <select id="event-format" name="eventFormat" required>
+                        <option value="">Select format</option>
+                        <option value="Virtual" selected>Virtual</option>
+                        <option value="In-Person">In-Person</option>
+                        <option value="Hybrid">Hybrid</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="copy-text-btn" class="btn btn-secondary">
+                        Copy Text
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="test-results" style="margin-top: 2rem; padding: 1rem; background: var(--secondary-bg); border-radius: 8px;">
+            <h3>Test Results:</h3>
+            <p>Click the "Copy Text" button above to test the functionality.</p>
+        </div>
+    </div>
+
+    <script src="vars.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Override some methods for testing without canvas
+        if (window.app) {
+            // Mock canvas methods to avoid errors
+            window.app.renderPreview = function() {
+                console.log('Canvas rendering skipped for test');
+            };
+            
+            // Add test result logging
+            const originalShowCopyFeedback = window.app.showCopyFeedback;
+            window.app.showCopyFeedback = function(message, type) {
+                originalShowCopyFeedback.call(this, message, type);
+                
+                const testResults = document.getElementById('test-results');
+                const result = document.createElement('div');
+                result.style.cssText = `
+                    margin-top: 0.5rem;
+                    padding: 0.5rem;
+                    border-radius: 4px;
+                    background: ${type === 'success' ? 'var(--success-color)' : 'var(--error-color)'};
+                    color: white;
+                `;
+                result.textContent = `${type.toUpperCase()}: ${message}`;
+                testResults.appendChild(result);
+            };
+        }
+    </script>
+</body>
+</html>

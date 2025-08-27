@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Browser Compatibility Test - Speaker Spotlight</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .compatibility-test {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--secondary-bg);
+            border-radius: 12px;
+        }
+        .browser-info {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+        .feature-test {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .feature-supported {
+            background: rgba(40, 167, 69, 0.1);
+            border-color: var(--success-color);
+        }
+        .feature-unsupported {
+            background: rgba(220, 53, 69, 0.1);
+            border-color: var(--error-color);
+        }
+        .feature-partial {
+            background: rgba(255, 193, 7, 0.1);
+            border-color: #ffc107;
+        }
+        .status-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+        .status-pass { background: var(--success-color); }
+        .status-fail { background: var(--error-color); }
+        .status-warn { background: #ffc107; }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .performance-warning {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid #ffc107;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="compatibility-test">
+        <h1>Cross-Browser Compatibility Test</h1>
+        
+        <div class="browser-info" id="browser-info">
+            <h2>Browser Information</h2>
+            <div id="browser-details">Loading browser information...</div>
+        </div>
+
+        <div class="test-grid">
+            <div class="feature-test" id="canvas-support">
+                <h3><span class="status-icon" id="canvas-icon"></span>HTML5 Canvas</h3>
+                <div id="canvas-details">Testing...</div>
+            </div>
+
+            <div class="feature-test" id="clipboard-support">
+                <h3><span class="status-icon" id="clipboard-icon"></span>Clipboard API</h3>
+                <div id="clipboard-details">Testing...</div>
+            </div>
+
+            <div class="feature-test" id="font-support">
+                <h3><span class="status-icon" id="font-icon"></span>Font Loading API</h3>
+                <div id="font-details">Testing...</div>
+            </div>
+
+            <div class="feature-test" id="storage-support">
+                <h3><span class="status-icon" id="storage-icon"></span>Local Storage</h3>
+                <div id="storage-details">Testing...</div>
+            </div>
+
+            <div class="feature-test" id="css-support">
+                <h3><span class="status-icon" id="css-icon"></span>CSS Features</h3>
+                <div id="css-details">Testing...</div>
+            </div>
+
+            <div class="feature-test" id="js-support">
+                <h3><span class="status-icon" id="js-icon"></span>JavaScript Features</h3>
+                <div id="js-details">Testing...</div>
+            </div>
+
+            <div class="feature-test" id="media-support">
+                <h3><span class="status-icon" id="media-icon"></span>Media Queries</h3>
+                <div id="media-details">Testing...</div>
+            </div>
+
+            <div class="feature-test" id="performance-support">
+                <h3><span class="status-icon" id="performance-icon"></span>Performance APIs</h3>
+                <div id="performance-details">Testing...</div>
+            </div>
+        </div>
+
+        <div class="performance-warning" id="performance-warning" style="display: none;">
+            <h3>⚠️ Performance Warning</h3>
+            <p>Some performance features are not available in this browser. The application will still work but may not be as smooth.</p>
+        </div>
+
+        <div class="feature-test">
+            <h3>Overall Compatibility Score</h3>
+            <div id="compatibility-score">Calculating...</div>
+            <div id="compatibility-recommendations"></div>
+        </div>
+    </div>
+
+    <script src="vars.js"></script>
+    <script>
+        class BrowserCompatibilityTester {
+            constructor() {
+                this.results = {};
+                this.init();
+            }
+
+            init() {
+                this.detectBrowser();
+                this.testFeatures();
+                this.calculateScore();
+            }
+
+            detectBrowser() {
+                const ua = navigator.userAgent;
+                const browserInfo = {
+                    userAgent: ua,
+                    platform: navigator.platform,
+                    language: navigator.language,
+                    cookieEnabled: navigator.cookieEnabled,
+                    onLine: navigator.onLine,
+                    vendor: navigator.vendor,
+                    product: navigator.product
+                };
+
+                // Detect browser type
+                let browserName = 'Unknown';
+                let browserVersion = 'Unknown';
+
+                if (ua.includes('Chrome') && !ua.includes('Edg')) {
+                    browserName = 'Chrome';
+                    browserVersion = ua.match(/Chrome\/([0-9.]+)/)?.[1] || 'Unknown';
+                } else if (ua.includes('Firefox')) {
+                    browserName = 'Firefox';
+                    browserVersion = ua.match(/Firefox\/([0-9.]+)/)?.[1] || 'Unknown';
+                } else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+                    browserName = 'Safari';
+                    browserVersion = ua.match(/Version\/([0-9.]+)/)?.[1] || 'Unknown';
+                } else if (ua.includes('Edg')) {
+                    browserName = 'Edge';
+                    browserVersion = ua.match(/Edg\/([0-9.]+)/)?.[1] || 'Unknown';
+                } else if (ua.includes('MSIE') || ua.includes('Trident')) {
+                    browserName = 'Internet Explorer';
+                    browserVersion = ua.match(/(?:MSIE |rv:)([0-9.]+)/)?.[1] || 'Unknown';
+                }
+
+                browserInfo.name = browserName;
+                browserInfo.version = browserVersion;
+
+                this.displayBrowserInfo(browserInfo);
+            }
+
+            displayBrowserInfo(info) {
+                const detailsDiv = document.getElementById('browser-details');
+                detailsDiv.innerHTML = `
+                    <div><strong>Browser:</strong> ${info.name} ${info.version}</div>
+                    <div><strong>Platform:</strong> ${info.platform}</div>
+                    <div><strong>Language:</strong> ${info.language}</div>
+                    <div><strong>Vendor:</strong> ${info.vendor}</div>
+                    <div><strong>Online:</strong> ${info.onLine ? 'Yes' : 'No'}</div>
+                    <div><strong>Cookies:</strong> ${info.cookieEnabled ? 'Enabled' : 'Disabled'}</div>
+                `;
+            }
+
+            testFeatures() {
+                this.testCanvas();
+                this.testClipboard();
+                this.testFontLoading();
+                this.testLocalStorage();
+                this.testCSSFeatures();
+                this.testJavaScriptFeatures();
+                this.testMediaQueries();
+                this.testPerformanceAPIs();
+            }
+
+            testCanvas() {
+                const canvas = document.createElement('canvas');
+                const supported = !!(canvas.getContext && canvas.getContext('2d'));
+                
+                let details = '';
+                let status = 'fail';
+
+                if (supported) {
+                    const ctx = canvas.getContext('2d');
+                    const features = {
+                        'Basic drawing': typeof ctx.fillRect === 'function',
+                        'Text rendering': typeof ctx.fillText === 'function',
+                        'Text measurement': typeof ctx.measureText === 'function',
+                        'Image data': typeof ctx.getImageData === 'function',
+                        'Transforms': typeof ctx.transform === 'function',
+                        'Gradients': typeof ctx.createLinearGradient === 'function',
+                        'Patterns': typeof ctx.createPattern === 'function'
+                    };
+
+                    const supportedFeatures = Object.entries(features).filter(([, supported]) => supported);
+                    const totalFeatures = Object.keys(features).length;
+
+                    if (supportedFeatures.length === totalFeatures) {
+                        status = 'pass';
+                        details = 'Full Canvas 2D support detected';
+                    } else {
+                        status = 'warn';
+                        details = `Partial support: ${supportedFeatures.length}/${totalFeatures} features`;
+                    }
+
+                    details += '<br><small>Supported: ' + supportedFeatures.map(([name]) => name).join(', ') + '</small>';
+                } else {
+                    details = 'Canvas not supported - preview will not work';
+                }
+
+                this.results.canvas = { supported, status, details };
+                this.updateFeatureDisplay('canvas', status, details);
+            }
+
+            testClipboard() {
+                const hasClipboardAPI = !!(navigator.clipboard && navigator.clipboard.writeText);
+                const hasExecCommand = !!(document.execCommand);
+                
+                let status = 'fail';
+                let details = '';
+
+                if (hasClipboardAPI) {
+                    status = 'pass';
+                    details = 'Modern Clipboard API supported';
+                } else if (hasExecCommand) {
+                    status = 'warn';
+                    details = 'Legacy execCommand available (fallback)';
+                } else {
+                    details = 'No clipboard support - manual copy required';
+                }
+
+                // Test clipboard permissions (if available)
+                if (navigator.permissions && navigator.permissions.query) {
+                    navigator.permissions.query({ name: 'clipboard-write' }).then(result => {
+                        if (result.state === 'granted') {
+                            details += '<br><small>Clipboard write permission: Granted</small>';
+                        } else if (result.state === 'prompt') {
+                            details += '<br><small>Clipboard write permission: Will prompt</small>';
+                        } else {
+                            details += '<br><small>Clipboard write permission: Denied</small>';
+                        }
+                        this.updateFeatureDisplay('clipboard', status, details);
+                    }).catch(() => {
+                        details += '<br><small>Clipboard permissions check failed</small>';
+                        this.updateFeatureDisplay('clipboard', status, details);
+                    });
+                } else {
+                    this.updateFeatureDisplay('clipboard', status, details);
+                }
+
+                this.results.clipboard = { supported: hasClipboardAPI || hasExecCommand, status, details };
+            }
+
+            testFontLoading() {
+                const hasFontAPI = !!(document.fonts && document.fonts.ready);
+                const hasFontFace = !!(window.FontFace);
+                
+                let status = 'fail';
+                let details = '';
+
+                if (hasFontAPI && hasFontFace) {
+                    status = 'pass';
+                    details = 'Full Font Loading API support';
+                    
+                    // Test font loading
+                    document.fonts.ready.then(() => {
+                        details += '<br><small>Fonts loaded successfully</small>';
+                        this.updateFeatureDisplay('font', status, details);
+                    }).catch(() => {
+                        details += '<br><small>Font loading failed</small>';
+                        this.updateFeatureDisplay('font', status, details);
+                    });
+                } else if (hasFontAPI || hasFontFace) {
+                    status = 'warn';
+                    details = 'Partial Font Loading API support';
+                } else {
+                    details = 'No Font Loading API - using fallback detection';
+                }
+
+                this.results.fontLoading = { supported: hasFontAPI, status, details };
+                if (!hasFontAPI) {
+                    this.updateFeatureDisplay('font', status, details);
+                }
+            }
+
+            testLocalStorage() {
+                let supported = false;
+                let status = 'fail';
+                let details = '';
+
+                try {
+                    const testKey = '__test__';
+                    localStorage.setItem(testKey, 'test');
+                    localStorage.removeItem(testKey);
+                    supported = true;
+                    status = 'pass';
+                    details = 'Local Storage fully functional';
+                } catch (e) {
+                    if (e.name === 'QuotaExceededError') {
+                        status = 'warn';
+                        details = 'Local Storage available but quota exceeded';
+                    } else {
+                        details = 'Local Storage not available - theme preferences won\'t persist';
+                    }
+                }
+
+                // Test storage quota (if available)
+                if (navigator.storage && navigator.storage.estimate) {
+                    navigator.storage.estimate().then(estimate => {
+                        const quota = estimate.quota;
+                        const usage = estimate.usage;
+                        const available = quota - usage;
+                        
+                        details += `<br><small>Storage: ${(usage / 1024 / 1024).toFixed(2)}MB used, ${(available / 1024 / 1024).toFixed(2)}MB available</small>`;
+                        this.updateFeatureDisplay('storage', status, details);
+                    });
+                } else {
+                    this.updateFeatureDisplay('storage', status, details);
+                }
+
+                this.results.localStorage = { supported, status, details };
+            }
+
+            testCSSFeatures() {
+                const features = {
+                    'CSS Grid': CSS.supports('display', 'grid'),
+                    'CSS Flexbox': CSS.supports('display', 'flex'),
+                    'CSS Custom Properties': CSS.supports('color', 'var(--test)'),
+                    'CSS Transforms': CSS.supports('transform', 'translateX(10px)'),
+                    'CSS Transitions': CSS.supports('transition', 'all 0.3s ease'),
+                    'CSS Media Queries': window.matchMedia !== undefined,
+                    'CSS Calc': CSS.supports('width', 'calc(100% - 10px)'),
+                    'CSS Viewport Units': CSS.supports('width', '100vw')
+                };
+
+                const supportedFeatures = Object.entries(features).filter(([, supported]) => supported);
+                const totalFeatures = Object.keys(features).length;
+                
+                let status = 'fail';
+                let details = '';
+
+                if (supportedFeatures.length === totalFeatures) {
+                    status = 'pass';
+                    details = 'All CSS features supported';
+                } else if (supportedFeatures.length >= totalFeatures * 0.8) {
+                    status = 'warn';
+                    details = `Most CSS features supported (${supportedFeatures.length}/${totalFeatures})`;
+                } else {
+                    details = `Limited CSS support (${supportedFeatures.length}/${totalFeatures})`;
+                }
+
+                const unsupported = Object.entries(features)
+                    .filter(([, supported]) => !supported)
+                    .map(([name]) => name);
+
+                if (unsupported.length > 0) {
+                    details += '<br><small>Missing: ' + unsupported.join(', ') + '</small>';
+                }
+
+                this.results.css = { supported: supportedFeatures.length >= totalFeatures * 0.8, status, details };
+                this.updateFeatureDisplay('css', status, details);
+            }
+
+            testJavaScriptFeatures() {
+                const features = {
+                    'ES6 Classes': typeof class {} === 'function',
+                    'Arrow Functions': (() => true)(),
+                    'Template Literals': `test` === 'test',
+                    'Destructuring': (() => { try { const [a] = [1]; return true; } catch { return false; } })(),
+                    'Promises': typeof Promise !== 'undefined',
+                    'Async/Await': (async () => true) instanceof Promise,
+                    'Fetch API': typeof fetch !== 'undefined',
+                    'Array Methods': Array.prototype.includes !== undefined,
+                    'Object Methods': Object.assign !== undefined,
+                    'Map/Set': typeof Map !== 'undefined' && typeof Set !== 'undefined'
+                };
+
+                const supportedFeatures = Object.entries(features).filter(([, supported]) => supported);
+                const totalFeatures = Object.keys(features).length;
+                
+                let status = 'fail';
+                let details = '';
+
+                if (supportedFeatures.length === totalFeatures) {
+                    status = 'pass';
+                    details = 'Modern JavaScript fully supported';
+                } else if (supportedFeatures.length >= totalFeatures * 0.8) {
+                    status = 'warn';
+                    details = `Most JavaScript features supported (${supportedFeatures.length}/${totalFeatures})`;
+                } else {
+                    details = `Limited JavaScript support (${supportedFeatures.length}/${totalFeatures})`;
+                }
+
+                const unsupported = Object.entries(features)
+                    .filter(([, supported]) => !supported)
+                    .map(([name]) => name);
+
+                if (unsupported.length > 0) {
+                    details += '<br><small>Missing: ' + unsupported.join(', ') + '</small>';
+                }
+
+                this.results.javascript = { supported: supportedFeatures.length >= totalFeatures * 0.8, status, details };
+                this.updateFeatureDisplay('js', status, details);
+            }
+
+            testMediaQueries() {
+                const queries = [
+                    '(max-width: 768px)',
+                    '(min-width: 1024px)',
+                    '(prefers-color-scheme: dark)',
+                    '(prefers-reduced-motion: reduce)',
+                    '(orientation: portrait)',
+                    '(hover: hover)',
+                    '(pointer: fine)'
+                ];
+
+                let supportedQueries = 0;
+                const results = {};
+
+                queries.forEach(query => {
+                    try {
+                        const mq = window.matchMedia(query);
+                        results[query] = mq !== null && typeof mq.matches === 'boolean';
+                        if (results[query]) supportedQueries++;
+                    } catch (e) {
+                        results[query] = false;
+                    }
+                });
+
+                let status = 'fail';
+                let details = '';
+
+                if (supportedQueries === queries.length) {
+                    status = 'pass';
+                    details = 'All media queries supported';
+                } else if (supportedQueries >= queries.length * 0.7) {
+                    status = 'warn';
+                    details = `Most media queries supported (${supportedQueries}/${queries.length})`;
+                } else {
+                    details = `Limited media query support (${supportedQueries}/${queries.length})`;
+                }
+
+                // Test current viewport
+                const viewport = {
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                    devicePixelRatio: window.devicePixelRatio || 1
+                };
+
+                details += `<br><small>Viewport: ${viewport.width}x${viewport.height} (${viewport.devicePixelRatio}x DPR)</small>`;
+
+                this.results.mediaQueries = { supported: supportedQueries >= queries.length * 0.7, status, details };
+                this.updateFeatureDisplay('media', status, details);
+            }
+
+            testPerformanceAPIs() {
+                const apis = {
+                    'Performance.now': typeof performance !== 'undefined' && typeof performance.now === 'function',
+                    'Performance.mark': typeof performance !== 'undefined' && typeof performance.mark === 'function',
+                    'Performance.measure': typeof performance !== 'undefined' && typeof performance.measure === 'function',
+                    'Performance.memory': typeof performance !== 'undefined' && performance.memory !== undefined,
+                    'RequestAnimationFrame': typeof requestAnimationFrame !== 'undefined',
+                    'RequestIdleCallback': typeof requestIdleCallback !== 'undefined',
+                    'Intersection Observer': typeof IntersectionObserver !== 'undefined',
+                    'Resize Observer': typeof ResizeObserver !== 'undefined'
+                };
+
+                const supportedAPIs = Object.entries(apis).filter(([, supported]) => supported);
+                const totalAPIs = Object.keys(apis).length;
+                
+                let status = 'fail';
+                let details = '';
+
+                if (supportedAPIs.length >= totalAPIs * 0.8) {
+                    status = 'pass';
+                    details = `Good performance API support (${supportedAPIs.length}/${totalAPIs})`;
+                } else if (supportedAPIs.length >= totalAPIs * 0.5) {
+                    status = 'warn';
+                    details = `Basic performance API support (${supportedAPIs.length}/${totalAPIs})`;
+                    document.getElementById('performance-warning').style.display = 'block';
+                } else {
+                    details = `Limited performance API support (${supportedAPIs.length}/${totalAPIs})`;
+                    document.getElementById('performance-warning').style.display = 'block';
+                }
+
+                const unsupported = Object.entries(apis)
+                    .filter(([, supported]) => !supported)
+                    .map(([name]) => name);
+
+                if (unsupported.length > 0) {
+                    details += '<br><small>Missing: ' + unsupported.join(', ') + '</small>';
+                }
+
+                this.results.performance = { supported: supportedAPIs.length >= totalAPIs * 0.5, status, details };
+                this.updateFeatureDisplay('performance', status, details);
+            }
+
+            updateFeatureDisplay(feature, status, details) {
+                const container = document.getElementById(`${feature}-support`);
+                const icon = document.getElementById(`${feature}-icon`);
+                const detailsDiv = document.getElementById(`${feature}-details`);
+
+                // Update container class
+                container.className = 'feature-test';
+                if (status === 'pass') {
+                    container.classList.add('feature-supported');
+                } else if (status === 'warn') {
+                    container.classList.add('feature-partial');
+                } else {
+                    container.classList.add('feature-unsupported');
+                }
+
+                // Update icon
+                icon.className = 'status-icon';
+                if (status === 'pass') {
+                    icon.classList.add('status-pass');
+                } else if (status === 'warn') {
+                    icon.classList.add('status-warn');
+                } else {
+                    icon.classList.add('status-fail');
+                }
+
+                // Update details
+                detailsDiv.innerHTML = details;
+            }
+
+            calculateScore() {
+                setTimeout(() => {
+                    const weights = {
+                        canvas: 30,      // Critical for app functionality
+                        clipboard: 15,   // Important for user experience
+                        localStorage: 10, // Nice to have
+                        css: 20,         // Important for layout
+                        javascript: 20,  // Critical for functionality
+                        mediaQueries: 10, // Important for responsive design
+                        fontLoading: 5,  // Nice to have
+                        performance: 10  // Nice to have
+                    };
+
+                    let totalScore = 0;
+                    let maxScore = 0;
+                    const issues = [];
+                    const recommendations = [];
+
+                    Object.entries(this.results).forEach(([feature, result]) => {
+                        const weight = weights[feature] || 5;
+                        maxScore += weight;
+
+                        if (result.status === 'pass') {
+                            totalScore += weight;
+                        } else if (result.status === 'warn') {
+                            totalScore += weight * 0.7;
+                            issues.push(`${feature}: Partial support`);
+                        } else {
+                            issues.push(`${feature}: Not supported`);
+                            if (feature === 'canvas') {
+                                recommendations.push('Canvas support is required - please upgrade your browser');
+                            } else if (feature === 'javascript') {
+                                recommendations.push('Modern JavaScript features missing - consider browser update');
+                            }
+                        }
+                    });
+
+                    const percentage = Math.round((totalScore / maxScore) * 100);
+                    let grade = 'F';
+                    let color = 'var(--error-color)';
+
+                    if (percentage >= 90) {
+                        grade = 'A';
+                        color = 'var(--success-color)';
+                    } else if (percentage >= 80) {
+                        grade = 'B';
+                        color = '#28a745';
+                    } else if (percentage >= 70) {
+                        grade = 'C';
+                        color = '#ffc107';
+                    } else if (percentage >= 60) {
+                        grade = 'D';
+                        color = '#fd7e14';
+                    }
+
+                    const scoreDiv = document.getElementById('compatibility-score');
+                    scoreDiv.innerHTML = `
+                        <div style="font-size: 2rem; color: ${color}; font-weight: bold;">${grade} (${percentage}%)</div>
+                        <div>Compatibility Score: ${totalScore.toFixed(1)}/${maxScore}</div>
+                    `;
+
+                    const recommendationsDiv = document.getElementById('compatibility-recommendations');
+                    if (issues.length > 0 || recommendations.length > 0) {
+                        let content = '';
+                        
+                        if (issues.length > 0) {
+                            content += '<h4>Issues Found:</h4><ul>';
+                            issues.forEach(issue => {
+                                content += `<li>${issue}</li>`;
+                            });
+                            content += '</ul>';
+                        }
+
+                        if (recommendations.length > 0) {
+                            content += '<h4>Recommendations:</h4><ul>';
+                            recommendations.forEach(rec => {
+                                content += `<li>${rec}</li>`;
+                            });
+                            content += '</ul>';
+                        }
+
+                        if (percentage >= 80) {
+                            content += '<p style="color: var(--success-color);">✅ Your browser should work well with this application!</p>';
+                        } else if (percentage >= 60) {
+                            content += '<p style="color: #ffc107;">⚠️ Your browser will work but some features may be limited.</p>';
+                        } else {
+                            content += '<p style="color: var(--error-color);">❌ Your browser may have significant compatibility issues.</p>';
+                        }
+
+                        recommendationsDiv.innerHTML = content;
+                    } else {
+                        recommendationsDiv.innerHTML = '<p style="color: var(--success-color);">✅ Excellent browser compatibility!</p>';
+                    }
+                }, 1000);
+            }
+        }
+
+        // Initialize compatibility tester when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new BrowserCompatibilityTester();
+        });
+    </script>
+</body>
+</html>

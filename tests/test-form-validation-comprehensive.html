@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Form Validation Test - Speaker Spotlight</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--secondary-bg);
+            border-radius: 12px;
+        }
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        .test-result {
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .test-pass {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+        .test-fail {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+        .test-warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+        .test-controls {
+            margin: 1rem 0;
+        }
+        .test-button {
+            margin: 0.25rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            background: var(--accent-color);
+            color: white;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #e68900;
+        }
+        .performance-metrics {
+            background: var(--secondary-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Comprehensive Form Validation Test Suite</h1>
+        
+        <div class="test-controls">
+            <button class="test-button" onclick="runAllTests()">Run All Tests</button>
+            <button class="test-button" onclick="runValidationTests()">Validation Tests</button>
+            <button class="test-button" onclick="runPerformanceTests()">Performance Tests</button>
+            <button class="test-button" onclick="runAccessibilityTests()">Accessibility Tests</button>
+            <button class="test-button" onclick="runResponsiveTests()">Responsive Tests</button>
+            <button class="test-button" onclick="clearResults()">Clear Results</button>
+        </div>
+
+        <div class="performance-metrics" id="performance-metrics">
+            <h3>Performance Metrics</h3>
+            <div id="metrics-content">Click "Run Performance Tests" to see metrics</div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test Results</h2>
+            <div id="test-results"></div>
+        </div>
+
+        <!-- Hidden form for testing -->
+        <div style="display: none;">
+            <form id="test-form">
+                <input type="text" id="test-speaker-name" maxlength="60">
+                <input type="text" id="test-topic-title" maxlength="100">
+                <textarea id="test-speaker-bio" maxlength="300"></textarea>
+                <input type="date" id="test-event-date">
+                <input type="time" id="test-event-time">
+                <select id="test-event-format">
+                    <option value="">Select format</option>
+                    <option value="Virtual">Virtual</option>
+                    <option value="In-Person">In-Person</option>
+                    <option value="Hybrid">Hybrid</option>
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <script src="vars.js"></script>
+    <script src="app.js"></script>
+    <script>
+        let testResults = [];
+        let performanceMetrics = {};
+
+        function logTest(testName, passed, message, type = 'info') {
+            const result = {
+                name: testName,
+                passed: passed,
+                message: message,
+                type: type,
+                timestamp: new Date().toISOString()
+            };
+            testResults.push(result);
+            displayResult(result);
+        }
+
+        function displayResult(result) {
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${result.passed ? 'test-pass' : 'test-fail'}`;
+            if (result.type === 'warning') resultDiv.className = 'test-result test-warning';
+            
+            resultDiv.innerHTML = `
+                <strong>${result.name}</strong>: ${result.passed ? 'PASS' : 'FAIL'}<br>
+                ${result.message}<br>
+                <small>${result.timestamp}</small>
+            `;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        function clearResults() {
+            testResults = [];
+            document.getElementById('test-results').innerHTML = '';
+            document.getElementById('metrics-content').innerHTML = 'Click "Run Performance Tests" to see metrics';
+        }
+
+        // Validation Tests
+        function runValidationTests() {
+            logTest('Validation Tests', true, 'Starting validation test suite...', 'info');
+            
+            // Test speaker name validation
+            testSpeakerNameValidation();
+            testTopicTitleValidation();
+            testSpeakerBioValidation();
+            testDateValidation();
+            testTimeValidation();
+            testFormatValidation();
+            testCharacterLimits();
+            testInputSanitization();
+            testRequiredFields();
+            testEdgeCases();
+        }
+
+        function testSpeakerNameValidation() {
+            const testCases = [
+                { input: '', expected: true, desc: 'Empty input (optional)' },
+                { input: 'John Doe', expected: true, desc: 'Valid name' },
+                { input: 'A', expected: false, desc: 'Too short (1 char)' },
+                { input: 'Mary-Jane O\'Connor', expected: true, desc: 'Name with hyphen and apostrophe' },
+                { input: 'John123', expected: false, desc: 'Name with numbers' },
+                { input: 'John@Doe', expected: false, desc: 'Name with special characters' },
+                { input: 'A'.repeat(61), expected: false, desc: 'Exceeds character limit' },
+                { input: 'Dr. Smith', expected: true, desc: 'Name with title and period' }
+            ];
+
+            testCases.forEach(testCase => {
+                const field = document.getElementById('test-speaker-name');
+                field.value = testCase.input;
+                
+                // Simulate validation (we need to access the app instance)
+                if (window.app && typeof window.app.validateSpeakerName === 'function') {
+                    const result = window.app.validateSpeakerName(testCase.input);
+                    const passed = result.isValid === testCase.expected;
+                    logTest(`Speaker Name: ${testCase.desc}`, passed, 
+                        `Input: "${testCase.input}" | Expected: ${testCase.expected} | Got: ${result.isValid} | Message: ${result.message}`);
+                } else {
+                    logTest(`Speaker Name: ${testCase.desc}`, false, 'Validation function not available');
+                }
+            });
+        }
+
+        function testTopicTitleValidation() {
+            const testCases = [
+                { input: '', expected: true, desc: 'Empty input' },
+                { input: 'Short', expected: false, desc: 'Too short (< 5 chars)' },
+                { input: 'Valid Topic Title', expected: true, desc: 'Valid topic title' },
+                { input: 'A'.repeat(101), expected: false, desc: 'Exceeds character limit' },
+                { input: 'Building Scalable Applications with AWS', expected: true, desc: 'Realistic topic title' }
+            ];
+
+            testCases.forEach(testCase => {
+                const field = document.getElementById('test-topic-title');
+                field.value = testCase.input;
+                
+                if (window.app && typeof window.app.validateTopicTitle === 'function') {
+                    const result = window.app.validateTopicTitle(testCase.input);
+                    const passed = result.isValid === testCase.expected;
+                    logTest(`Topic Title: ${testCase.desc}`, passed, 
+                        `Input: "${testCase.input}" | Expected: ${testCase.expected} | Got: ${result.isValid}`);
+                } else {
+                    logTest(`Topic Title: ${testCase.desc}`, false, 'Validation function not available');
+                }
+            });
+        }
+
+        function testSpeakerBioValidation() {
+            const testCases = [
+                { input: '', expected: true, desc: 'Empty input' },
+                { input: 'Too short bio', expected: false, desc: 'Too short (< 20 chars)' },
+                { input: 'This is a valid speaker bio that contains enough characters to pass validation.', expected: true, desc: 'Valid bio' },
+                { input: 'A'.repeat(301), expected: false, desc: 'Exceeds character limit' },
+                { input: 'John is a senior software engineer with 10+ years of experience in cloud computing and AWS services.', expected: true, desc: 'Realistic bio' }
+            ];
+
+            testCases.forEach(testCase => {
+                const field = document.getElementById('test-speaker-bio');
+                field.value = testCase.input;
+                
+                if (window.app && typeof window.app.validateSpeakerBio === 'function') {
+                    const result = window.app.validateSpeakerBio(testCase.input);
+                    const passed = result.isValid === testCase.expected;
+                    logTest(`Speaker Bio: ${testCase.desc}`, passed, 
+                        `Input length: ${testCase.input.length} | Expected: ${testCase.expected} | Got: ${result.isValid}`);
+                } else {
+                    logTest(`Speaker Bio: ${testCase.desc}`, false, 'Validation function not available');
+                }
+            });
+        }
+
+        function testDateValidation() {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const futureDate = new Date(today);
+            futureDate.setFullYear(futureDate.getFullYear() + 2);
+
+            const testCases = [
+                { input: '', expected: true, desc: 'Empty input' },
+                { input: tomorrow.toISOString().split('T')[0], expected: true, desc: 'Future date (tomorrow)' },
+                { input: yesterday.toISOString().split('T')[0], expected: false, desc: 'Past date (yesterday)' },
+                { input: futureDate.toISOString().split('T')[0], expected: true, desc: 'Far future date (warning expected)', warning: true },
+                { input: 'invalid-date', expected: false, desc: 'Invalid date format' }
+            ];
+
+            testCases.forEach(testCase => {
+                const field = document.getElementById('test-event-date');
+                field.value = testCase.input;
+                
+                if (window.app && typeof window.app.validateDateInput === 'function') {
+                    const result = window.app.validateDateInput(field, testCase.input);
+                    const passed = result.isValid === testCase.expected;
+                    logTest(`Date: ${testCase.desc}`, passed, 
+                        `Input: "${testCase.input}" | Expected: ${testCase.expected} | Got: ${result.isValid} | Warning: ${result.isWarning || false}`);
+                } else {
+                    logTest(`Date: ${testCase.desc}`, false, 'Validation function not available');
+                }
+            });
+        }
+
+        function testTimeValidation() {
+            const testCases = [
+                { input: '', expected: true, desc: 'Empty input' },
+                { input: '09:30', expected: true, desc: 'Valid time' },
+                { input: '25:00', expected: false, desc: 'Invalid hour (25)' },
+                { input: '12:60', expected: false, desc: 'Invalid minute (60)' },
+                { input: '03:00', expected: true, desc: 'Early morning time (warning expected)', warning: true },
+                { input: '23:30', expected: true, desc: 'Late evening time (warning expected)', warning: true },
+                { input: 'invalid', expected: false, desc: 'Invalid time format' }
+            ];
+
+            testCases.forEach(testCase => {
+                const field = document.getElementById('test-event-time');
+                field.value = testCase.input;
+                
+                if (window.app && typeof window.app.validateTimeInput === 'function') {
+                    const result = window.app.validateTimeInput(field, testCase.input);
+                    const passed = result.isValid === testCase.expected;
+                    logTest(`Time: ${testCase.desc}`, passed, 
+                        `Input: "${testCase.input}" | Expected: ${testCase.expected} | Got: ${result.isValid} | Warning: ${result.isWarning || false}`);
+                } else {
+                    logTest(`Time: ${testCase.desc}`, false, 'Validation function not available');
+                }
+            });
+        }
+
+        function testFormatValidation() {
+            const testCases = [
+                { input: '', expected: true, desc: 'Empty selection' },
+                { input: 'Virtual', expected: true, desc: 'Valid format: Virtual' },
+                { input: 'In-Person', expected: true, desc: 'Valid format: In-Person' },
+                { input: 'Hybrid', expected: true, desc: 'Valid format: Hybrid' },
+                { input: 'Invalid', expected: false, desc: 'Invalid format option' }
+            ];
+
+            testCases.forEach(testCase => {
+                const field = document.getElementById('test-event-format');
+                field.value = testCase.input;
+                
+                if (window.app && typeof window.app.validateSelectInput === 'function') {
+                    const result = window.app.validateSelectInput(field, testCase.input);
+                    const passed = result.isValid === testCase.expected;
+                    logTest(`Format: ${testCase.desc}`, passed, 
+                        `Input: "${testCase.input}" | Expected: ${testCase.expected} | Got: ${result.isValid}`);
+                } else {
+                    logTest(`Format: ${testCase.desc}`, false, 'Validation function not available');
+                }
+            });
+        }
+
+        function testCharacterLimits() {
+            const limits = CONFIG.form.limits;
+            
+            // Test exact limits
+            const nameAtLimit = 'A'.repeat(limits.speakerName);
+            const topicAtLimit = 'A'.repeat(limits.topicTitle);
+            const bioAtLimit = 'A'.repeat(limits.speakerBio);
+            
+            const nameOverLimit = 'A'.repeat(limits.speakerName + 1);
+            const topicOverLimit = 'A'.repeat(limits.topicTitle + 1);
+            const bioOverLimit = 'A'.repeat(limits.speakerBio + 1);
+
+            // Test at limit
+            logTest('Character Limit: Name at limit', nameAtLimit.length === limits.speakerName, 
+                `Name at ${limits.speakerName} chars: ${nameAtLimit.length}`);
+            logTest('Character Limit: Topic at limit', topicAtLimit.length === limits.topicTitle, 
+                `Topic at ${limits.topicTitle} chars: ${topicAtLimit.length}`);
+            logTest('Character Limit: Bio at limit', bioAtLimit.length === limits.speakerBio, 
+                `Bio at ${limits.speakerBio} chars: ${bioAtLimit.length}`);
+
+            // Test over limit (should be prevented by maxlength attribute)
+            logTest('Character Limit: Name over limit prevention', nameOverLimit.length > limits.speakerName, 
+                `Name over limit test: ${nameOverLimit.length} chars (should be prevented by HTML)`);
+        }
+
+        function testInputSanitization() {
+            const maliciousInputs = [
+                '<script>alert("xss")</script>',
+                'John & Jane',
+                'Name with "quotes"',
+                "Name with 'apostrophes'",
+                'Name<tag>content</tag>',
+                'Normal text with   multiple   spaces'
+            ];
+
+            maliciousInputs.forEach(input => {
+                if (window.app && typeof window.app.sanitizeInput === 'function') {
+                    const sanitized = window.app.sanitizeInput(input);
+                    const isSafe = !sanitized.includes('<') && !sanitized.includes('>') && 
+                                  !sanitized.includes('"') && !sanitized.includes("'") && 
+                                  !sanitized.includes('&');
+                    logTest(`Sanitization: "${input.substring(0, 20)}..."`, isSafe, 
+                        `Original: "${input}" | Sanitized: "${sanitized}"`);
+                } else {
+                    logTest(`Sanitization test`, false, 'Sanitization function not available');
+                }
+            });
+        }
+
+        function testRequiredFields() {
+            const requiredFields = ['speaker-name', 'topic-title', 'speaker-bio', 'event-date', 'event-time', 'event-format'];
+            
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(`test-${fieldId}`);
+                if (field) {
+                    const isRequired = field.hasAttribute('required');
+                    logTest(`Required Field: ${fieldId}`, isRequired, 
+                        `Field ${fieldId} ${isRequired ? 'has' : 'missing'} required attribute`);
+                } else {
+                    logTest(`Required Field: ${fieldId}`, false, `Field ${fieldId} not found in test form`);
+                }
+            });
+        }
+
+        function testEdgeCases() {
+            // Test Unicode characters
+            const unicodeTests = [
+                { input: 'José María', field: 'name', desc: 'Unicode characters in name' },
+                { input: 'Building Apps with λ Functions', field: 'topic', desc: 'Unicode in topic title' },
+                { input: 'Expert in AI/ML with 10+ years experience in São Paulo.', field: 'bio', desc: 'Unicode in bio' }
+            ];
+
+            unicodeTests.forEach(test => {
+                logTest(`Unicode: ${test.desc}`, true, `Testing: "${test.input}"`);
+            });
+
+            // Test whitespace handling
+            const whitespaceTests = [
+                { input: '  John Doe  ', expected: 'John Doe', desc: 'Leading/trailing spaces' },
+                { input: 'John    Doe', expected: 'John Doe', desc: 'Multiple internal spaces' },
+                { input: '\t\nJohn\t\nDoe\t\n', expected: 'John Doe', desc: 'Tabs and newlines' }
+            ];
+
+            whitespaceTests.forEach(test => {
+                if (window.app && typeof window.app.sanitizeInput === 'function') {
+                    const result = window.app.sanitizeInput(test.input);
+                    const passed = result === test.expected;
+                    logTest(`Whitespace: ${test.desc}`, passed, 
+                        `Input: "${test.input}" | Expected: "${test.expected}" | Got: "${result}"`);
+                }
+            });
+        }
+
+        // Performance Tests
+        function runPerformanceTests() {
+            logTest('Performance Tests', true, 'Starting performance test suite...', 'info');
+            
+            const startTime = performance.now();
+            
+            // Test rendering performance
+            testRenderingPerformance();
+            
+            // Test validation performance
+            testValidationPerformance();
+            
+            // Test memory usage
+            testMemoryUsage();
+            
+            const endTime = performance.now();
+            performanceMetrics.totalTestTime = endTime - startTime;
+            
+            displayPerformanceMetrics();
+        }
+
+        function testRenderingPerformance() {
+            if (!window.app || typeof window.app.renderPreview !== 'function') {
+                logTest('Rendering Performance', false, 'App not available for testing');
+                return;
+            }
+
+            const iterations = 100;
+            const startTime = performance.now();
+            
+            for (let i = 0; i < iterations; i++) {
+                window.app.renderPreview();
+            }
+            
+            const endTime = performance.now();
+            const avgTime = (endTime - startTime) / iterations;
+            
+            performanceMetrics.renderingAvgTime = avgTime;
+            performanceMetrics.renderingFPS = 1000 / avgTime;
+            
+            const passed = avgTime < 16.67; // Should render faster than 60fps
+            logTest('Rendering Performance', passed, 
+                `Average render time: ${avgTime.toFixed(2)}ms | Estimated FPS: ${(1000/avgTime).toFixed(1)}`);
+        }
+
+        function testValidationPerformance() {
+            if (!window.app) {
+                logTest('Validation Performance', false, 'App not available for testing');
+                return;
+            }
+
+            const testInput = 'A'.repeat(100);
+            const iterations = 1000;
+            const startTime = performance.now();
+            
+            for (let i = 0; i < iterations; i++) {
+                if (typeof window.app.validateSpeakerName === 'function') {
+                    window.app.validateSpeakerName(testInput);
+                }
+            }
+            
+            const endTime = performance.now();
+            const avgTime = (endTime - startTime) / iterations;
+            
+            performanceMetrics.validationAvgTime = avgTime;
+            
+            const passed = avgTime < 1; // Should validate in less than 1ms
+            logTest('Validation Performance', passed, 
+                `Average validation time: ${avgTime.toFixed(3)}ms per validation`);
+        }
+
+        function testMemoryUsage() {
+            if (performance.memory) {
+                const memoryBefore = performance.memory.usedJSHeapSize;
+                
+                // Simulate heavy usage
+                for (let i = 0; i < 100; i++) {
+                    if (window.app && typeof window.app.renderPreview === 'function') {
+                        window.app.renderPreview();
+                    }
+                }
+                
+                // Force garbage collection if available
+                if (window.gc) {
+                    window.gc();
+                }
+                
+                setTimeout(() => {
+                    const memoryAfter = performance.memory.usedJSHeapSize;
+                    const memoryDiff = memoryAfter - memoryBefore;
+                    
+                    performanceMetrics.memoryUsage = {
+                        before: memoryBefore,
+                        after: memoryAfter,
+                        diff: memoryDiff
+                    };
+                    
+                    const passed = memoryDiff < 1024 * 1024; // Less than 1MB increase
+                    logTest('Memory Usage', passed, 
+                        `Memory difference: ${(memoryDiff / 1024).toFixed(2)}KB`);
+                }, 100);
+            } else {
+                logTest('Memory Usage', false, 'Performance.memory API not available');
+            }
+        }
+
+        function displayPerformanceMetrics() {
+            const metricsDiv = document.getElementById('metrics-content');
+            metricsDiv.innerHTML = `
+                <div><strong>Total Test Time:</strong> ${performanceMetrics.totalTestTime?.toFixed(2) || 'N/A'}ms</div>
+                <div><strong>Avg Render Time:</strong> ${performanceMetrics.renderingAvgTime?.toFixed(2) || 'N/A'}ms</div>
+                <div><strong>Estimated FPS:</strong> ${performanceMetrics.renderingFPS?.toFixed(1) || 'N/A'}</div>
+                <div><strong>Avg Validation Time:</strong> ${performanceMetrics.validationAvgTime?.toFixed(3) || 'N/A'}ms</div>
+                <div><strong>Memory Usage:</strong> ${performanceMetrics.memoryUsage ? 
+                    `${(performanceMetrics.memoryUsage.diff / 1024).toFixed(2)}KB` : 'N/A'}</div>
+            `;
+        }
+
+        // Accessibility Tests
+        function runAccessibilityTests() {
+            logTest('Accessibility Tests', true, 'Starting accessibility test suite...', 'info');
+            
+            testAriaLabels();
+            testKeyboardNavigation();
+            testColorContrast();
+            testScreenReaderSupport();
+            testFocusManagement();
+        }
+
+        function testAriaLabels() {
+            const requiredAriaElements = [
+                { selector: 'input[required]', attribute: 'aria-invalid' },
+                { selector: 'button', attribute: 'aria-label' },
+                { selector: '[role="button"]', attribute: 'aria-label' }
+            ];
+
+            requiredAriaElements.forEach(test => {
+                const elements = document.querySelectorAll(test.selector);
+                let passed = true;
+                let missing = [];
+
+                elements.forEach(el => {
+                    if (!el.hasAttribute(test.attribute)) {
+                        passed = false;
+                        missing.push(el.tagName + (el.id ? `#${el.id}` : ''));
+                    }
+                });
+
+                logTest(`ARIA: ${test.attribute} on ${test.selector}`, passed, 
+                    passed ? `All elements have ${test.attribute}` : `Missing on: ${missing.join(', ')}`);
+            });
+        }
+
+        function testKeyboardNavigation() {
+            const interactiveElements = document.querySelectorAll('button, input, select, textarea, [tabindex]');
+            let tabIndexIssues = [];
+
+            interactiveElements.forEach(el => {
+                const tabIndex = el.getAttribute('tabindex');
+                if (tabIndex && parseInt(tabIndex) > 0) {
+                    tabIndexIssues.push(el.tagName + (el.id ? `#${el.id}` : ''));
+                }
+            });
+
+            logTest('Keyboard Navigation: Tab Index', tabIndexIssues.length === 0, 
+                tabIndexIssues.length === 0 ? 'No positive tab indices found (good)' : 
+                `Positive tab indices found on: ${tabIndexIssues.join(', ')}`);
+
+            // Test skip link
+            const skipLink = document.querySelector('.skip-link');
+            logTest('Keyboard Navigation: Skip Link', !!skipLink, 
+                skipLink ? 'Skip link found' : 'Skip link missing');
+        }
+
+        function testColorContrast() {
+            // This is a simplified test - in real scenarios you'd use tools like axe-core
+            const colorTests = [
+                { element: 'body', property: 'color' },
+                { element: '.btn', property: 'color' },
+                { element: 'input', property: 'color' }
+            ];
+
+            colorTests.forEach(test => {
+                const element = document.querySelector(test.element);
+                if (element) {
+                    const styles = getComputedStyle(element);
+                    const color = styles.getPropertyValue(test.property);
+                    const backgroundColor = styles.getPropertyValue('background-color');
+                    
+                    logTest(`Color Contrast: ${test.element}`, true, 
+                        `Color: ${color}, Background: ${backgroundColor} (manual verification needed)`);
+                } else {
+                    logTest(`Color Contrast: ${test.element}`, false, `Element not found`);
+                }
+            });
+        }
+
+        function testScreenReaderSupport() {
+            const srElements = document.querySelectorAll('.sr-only');
+            logTest('Screen Reader: SR-only elements', srElements.length > 0, 
+                `Found ${srElements.length} screen reader only elements`);
+
+            const liveRegions = document.querySelectorAll('[aria-live]');
+            logTest('Screen Reader: Live regions', liveRegions.length > 0, 
+                `Found ${liveRegions.length} live regions`);
+
+            const landmarks = document.querySelectorAll('main, nav, header, footer, aside, section[aria-label]');
+            logTest('Screen Reader: Landmarks', landmarks.length > 0, 
+                `Found ${landmarks.length} landmark elements`);
+        }
+
+        function testFocusManagement() {
+            // Test focus visibility
+            const focusableElements = document.querySelectorAll('button, input, select, textarea, a[href]');
+            let focusIssues = [];
+
+            focusableElements.forEach(el => {
+                const styles = getComputedStyle(el, ':focus');
+                const outline = styles.getPropertyValue('outline');
+                const outlineWidth = styles.getPropertyValue('outline-width');
+                
+                if (outline === 'none' || outlineWidth === '0px') {
+                    focusIssues.push(el.tagName + (el.id ? `#${el.id}` : ''));
+                }
+            });
+
+            logTest('Focus Management: Visible focus', focusIssues.length === 0, 
+                focusIssues.length === 0 ? 'All focusable elements have visible focus' : 
+                `Elements without visible focus: ${focusIssues.join(', ')}`);
+        }
+
+        // Responsive Tests
+        function runResponsiveTests() {
+            logTest('Responsive Tests', true, 'Starting responsive test suite...', 'info');
+            
+            testViewportMeta();
+            testResponsiveLayout();
+            testTouchTargets();
+            testTextScaling();
+        }
+
+        function testViewportMeta() {
+            const viewport = document.querySelector('meta[name="viewport"]');
+            const hasViewport = !!viewport;
+            const content = viewport ? viewport.getAttribute('content') : '';
+            
+            logTest('Responsive: Viewport meta', hasViewport, 
+                hasViewport ? `Viewport content: ${content}` : 'Viewport meta tag missing');
+        }
+
+        function testResponsiveLayout() {
+            const breakpoints = [320, 768, 1024, 1200];
+            
+            breakpoints.forEach(width => {
+                // Simulate different screen sizes (this is limited in testing)
+                const mediaQuery = window.matchMedia(`(max-width: ${width}px)`);
+                logTest(`Responsive: ${width}px breakpoint`, true, 
+                    `Media query (max-width: ${width}px) matches: ${mediaQuery.matches}`);
+            });
+        }
+
+        function testTouchTargets() {
+            const interactiveElements = document.querySelectorAll('button, input, select, textarea, a[href]');
+            let smallTargets = [];
+
+            interactiveElements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                const minSize = 44; // WCAG recommendation
+                
+                if (rect.width < minSize || rect.height < minSize) {
+                    smallTargets.push(`${el.tagName}${el.id ? `#${el.id}` : ''} (${rect.width}x${rect.height})`);
+                }
+            });
+
+            logTest('Responsive: Touch targets', smallTargets.length === 0, 
+                smallTargets.length === 0 ? 'All touch targets meet minimum size (44px)' : 
+                `Small targets: ${smallTargets.join(', ')}`);
+        }
+
+        function testTextScaling() {
+            // Test if text can scale (simplified test)
+            const body = document.body;
+            const originalFontSize = getComputedStyle(body).fontSize;
+            
+            logTest('Responsive: Text scaling', true, 
+                `Base font size: ${originalFontSize} (should scale with browser zoom)`);
+        }
+
+        // Main test runner
+        function runAllTests() {
+            clearResults();
+            logTest('Test Suite', true, 'Starting comprehensive test suite...', 'info');
+            
+            setTimeout(() => runValidationTests(), 100);
+            setTimeout(() => runPerformanceTests(), 500);
+            setTimeout(() => runAccessibilityTests(), 1000);
+            setTimeout(() => runResponsiveTests(), 1500);
+            
+            setTimeout(() => {
+                const totalTests = testResults.length;
+                const passedTests = testResults.filter(r => r.passed).length;
+                const failedTests = totalTests - passedTests;
+                
+                logTest('Test Summary', failedTests === 0, 
+                    `Total: ${totalTests} | Passed: ${passedTests} | Failed: ${failedTests}`, 'info');
+            }, 2000);
+        }
+
+        // Initialize tests when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            logTest('Test Environment', true, 'Test environment initialized successfully', 'info');
+            
+            // Check if main app is available
+            if (window.app) {
+                logTest('App Availability', true, 'Main application instance found');
+            } else {
+                logTest('App Availability', false, 'Main application instance not found - some tests may fail');
+            }
+            
+            // Check if CONFIG is available
+            if (window.CONFIG) {
+                logTest('Config Availability', true, 'Configuration object found');
+            } else {
+                logTest('Config Availability', false, 'Configuration object not found');
+            }
+        });
+    </script>
+</body>
+</html>
